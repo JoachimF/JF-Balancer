@@ -42,6 +42,11 @@ float data_y[2*SAMPLES] ;
 
 struct data_mpu_t raw_data[SAMPLES] ;
 
+TaskHandle_t read_accel ;
+#define EVT_ACQ_DONE   (1 << 0)
+
+static EventGroupHandle_t data_rdy;
+
 bool is_first = 1 ;
 uint64_t start_time ;
 mpu6050_dev_t dev = { 0 };
@@ -59,6 +64,9 @@ static void IRAM_ATTR mpu6050_isr(void* arg)
 {
     //uint32_t gpio_num = (uint32_t) arg;
     current_time = esp_timer_get_time() ;
+    BaseType_t woken = pdFALSE;
+    xEventGroupSetBitsFromISR(data_rdy, EVT_ACQ_DONE, &woken);
+    if (woken) portYIELD_FROM_ISR();
     get_data = 1 ;
 }
 
@@ -186,12 +194,89 @@ void compute_fft(const struct data_mpu_t *raw, int n)
     printf("fs = %.1f Hz, pic à %.2f Hz\n", fs, max_k * fs / n);
 }
 
+void lecture_donnee(void)
+{
+    while(1) {
+        while(nb_sample < SAMPLES){
+            EventBits_t bits = xEventGroupWaitBits(
+            data_rdy,
+            EVT_ACQ_DONE,      // bits attendus
+            pdTRUE,            // effacer les bits après réveil
+            pdFALSE,           // pdTRUE = attendre TOUS les bits, pdFALSE = au moins un
+            portMAX_DELAY);    // timeout
+
+            ESP_ERROR_CHECK(mpu6050_get_acceleration(&dev, &accel));
+            raw_data[nb_sample].gyrox = accel.z ;
+            raw_data[nb_sample].gyroy = accel.y ;
+            
+            //ESP_LOGI(TAG, "Get Gyro") ;
+            /*ESP_ERROR_CHECKmpu6050_get_rotation(&dev, &gyro));
+            raw_data[nb_sample].gyrox = gyro.z ;
+            raw_data[nb_sample].gyroy = gyro.y ; */
+
+
+            raw_data[nb_sample].time = (float)current_time - (float)start_time ; 
+            get_data = 0 ;
+            nb_sample++ ;
+            if (bits & EVT_ACQ_DONE) {
+                // acquisition terminée
+            }
+        }
+        gpio_intr_disable(MPU6050_INT_PIN) ;
+        gpio_intr_disable(LASER_INT_PIN) ;
+
+        ESP_LOGI(TAG, "Fin de l'acquisition") ;
+
+        double f_ref = (laser_count - 1) * 1e6 / (double)(laser_last - laser_first);
+        double t_laser0 = ((double)((int64_t)laser_first - (int64_t)start_time)) * 1e-6; // en s, base de temps des échantillons
+
+        //Préparation des tableau pour la FFT
+        ESP_LOGI(TAG, "Préparation de la FFT") ;
+        for(int i=0;i<SAMPLES;i++)
+        {
+            data_x[i*2]     = raw_data[i].time ;
+            data_y[i*2]     = raw_data[i].time ;
+            data_x[1+2*i]   = raw_data[i].gyrox ;
+            data_y[1+2*i]   = raw_data[i].gyroy ;
+        }
+
+        printf("Laser count : %ld\n",laser_count) ;
+        //printf("t;X;Y;t\n") ;
+        for(int j=0;j<SAMPLES*2;j+=2)
+        {
+            printf("%f;%f;%f\n",data_x[j],data_x[j+1],data_y[j+1]) ;
+        }
+
+        static float sig[SAMPLES];
+        static uint32_t tus[SAMPLES];
+        for (int i = 0; i < SAMPLES; i++) {
+            tus[i] = raw_data[i].time;
+            sig[i] = raw_data[i].gyroy;      // ou gyrox, etc.
+        }
+
+        printf("Laser count : %ld\n",laser_count) ;
+        lockin_result_t r = lockin(tus, sig, SAMPLES, f_ref, t_laser0);     
+        printf("f_ref = %.2f Hz | amplitude = %.4f | phase = %.1f deg (n=%d)\n",f_ref, r.amp, r.phase_deg, r.n_used);
+
+
+        compute_fft(raw_data, SAMPLES);
+        vTaskSuspend(NULL) ;
+    }
+
+}
+
 void app_main(void)
 {
-
-    
+ 
     ESP_ERROR_CHECK(i2cdev_init());
     config_mpu() ;
+
+    ESP_LOGI(TAG, "Création de la tache") ;
+  	xTaskCreatePinnedToCore(lecture_donnee, "Lecture accelero", configMINIMAL_STACK_SIZE * 8, NULL, (configMAX_PRIORITIES -1), &read_accel,1);
+    vTaskSuspend(read_accel);
+    ESP_LOGI(TAG, "Création de l'évenement") ;
+    data_rdy = xEventGroupCreate();
+
     start_time = esp_timer_get_time() ;
     /* Configure the peripheral according to the LED type */
     gpio_config_t io_conf_mpu6050_isr = {
@@ -226,12 +311,26 @@ void app_main(void)
     ESP_LOGI(TAG, "Config handler laser") ;
     gpio_isr_handler_add(LASER_INT_PIN, laser_isr, (void*) LASER_INT_PIN);
     ESP_ERROR_CHECK(gpio_intr_enable(LASER_INT_PIN)) ;
-    start_time = esp_timer_get_time() ;
     
     nb_sample = 0 ;
     laser_count = 0 ;
+    start_time = esp_timer_get_time() ;
+    ESP_ERROR_CHECK(gpio_intr_enable(MPU6050_INT_PIN)) ;
+    ESP_ERROR_CHECK(gpio_intr_enable(LASER_INT_PIN)) ;
+    ESP_LOGI(TAG, "Démarrage de l'acquisition") ;
+    vTaskResume(read_accel);
     while (1) {
-        /*while (1) 
+       
+
+        while (1) vTaskDelay(10 / portTICK_PERIOD_MS); 
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+}
+
+
+void nulle(void)
+{
+     /*while (1) 
         {
             printf("X : %ld\n",laser_count) ;
             vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -298,8 +397,4 @@ void app_main(void)
 
 
         compute_fft(raw_data, SAMPLES);
-
-        while (1) vTaskDelay(10 / portTICK_PERIOD_MS); 
-        vTaskDelay(100 / portTICK_PERIOD_MS);
-    }
 }

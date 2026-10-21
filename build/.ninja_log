@@ -2378,3 +2378,157 @@
 9969	10501	8142867810475523	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/.bin_timestamp	63a3940559266c4b
 10502	10705	8142867810641655	esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
 10502	10705	8142867810641655	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+376	1111	8142882631054377	bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+376	1111	8142882631054377	bootloader/bootloader.elf	f5e42b0893ed659
+376	1111	8142882631054377	bootloader/bootloader.bin	f5e42b0893ed659
+376	1111	8142882631054377	bootloader/bootloader.map	f5e42b0893ed659
+376	1111	8142882631054377	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+376	1111	8142882631054377	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.elf	f5e42b0893ed659
+376	1111	8142882631054377	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.bin	f5e42b0893ed659
+376	1111	8142882631054377	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.map	f5e42b0893ed659
+1112	1162	8142882638441836	bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+1112	1162	8142882638441836	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+1162	1253	8142882639759267	CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+1162	1253	8142882639759267	bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+1162	1253	8142882639759267	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+1162	1253	8142882639759267	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+133	2406	8142882628710660	esp-idf/main/CMakeFiles/__idf_main.dir/jf-balancer.c.obj	47d4e2b44aef7af2
+2407	3230	8142882651391647	esp-idf/main/libmain.a	16e5316e3f83e0c4
+3231	11336	8142882740362039	esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+3231	11336	8142882740362039	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+11336	13597	8142882740686858	JF-Balancer.elf	6b3ea5a80b0ec493
+13598	13995	8142882767195538	.bin_timestamp	63a3940559266c4b
+13598	13995	8142882767195538	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/.bin_timestamp	63a3940559266c4b
+13996	14158	8142882767338939	esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+13996	14158	8142882767338939	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+130	306	8142883140590216	esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+130	306	8142883140590216	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+107	363	8142883140450807	bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+107	363	8142883140450807	bootloader/bootloader.elf	f5e42b0893ed659
+107	363	8142883140450807	bootloader/bootloader.bin	f5e42b0893ed659
+107	363	8142883140450807	bootloader/bootloader.map	f5e42b0893ed659
+107	363	8142883140450807	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+107	363	8142883140450807	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.elf	f5e42b0893ed659
+107	363	8142883140450807	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.bin	f5e42b0893ed659
+107	363	8142883140450807	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.map	f5e42b0893ed659
+363	414	8142883142917971	bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+363	414	8142883142917971	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+414	505	8142883144252185	CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+414	505	8142883144252185	bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+414	505	8142883144252185	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+414	505	8142883144252185	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+108	385	8142883897043647	bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+108	385	8142883897043647	bootloader/bootloader.elf	f5e42b0893ed659
+108	385	8142883897043647	bootloader/bootloader.bin	f5e42b0893ed659
+108	385	8142883897043647	bootloader/bootloader.map	f5e42b0893ed659
+108	385	8142883897043647	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+108	385	8142883897043647	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.elf	f5e42b0893ed659
+108	385	8142883897043647	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.bin	f5e42b0893ed659
+108	385	8142883897043647	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.map	f5e42b0893ed659
+100	398	8142883897043647	esp-idf/main/CMakeFiles/__idf_main.dir/jf-balancer.c.obj	47d4e2b44aef7af2
+386	439	8142883899935472	bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+386	439	8142883899935472	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+439	538	8142883901361630	CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+439	538	8142883901361630	bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+439	538	8142883901361630	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+439	538	8142883901361630	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+399	538	8142883900075997	esp-idf/main/libmain.a	16e5316e3f83e0c4
+538	6309	8142883958782050	esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+538	6309	8142883958782050	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+6310	7124	8142883959182843	JF-Balancer.elf	6b3ea5a80b0ec493
+7125	7690	8142883972842325	.bin_timestamp	63a3940559266c4b
+7125	7690	8142883972842325	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/.bin_timestamp	63a3940559266c4b
+7690	7873	8142883972991817	esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+7690	7873	8142883972991817	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+86	367	8142884715142482	esp-idf/main/CMakeFiles/__idf_main.dir/jf-balancer.c.obj	47d4e2b44aef7af2
+106	386	8142884715466380	bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+106	386	8142884715466380	bootloader/bootloader.elf	f5e42b0893ed659
+106	386	8142884715466380	bootloader/bootloader.bin	f5e42b0893ed659
+106	386	8142884715466380	bootloader/bootloader.map	f5e42b0893ed659
+106	386	8142884715466380	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+106	386	8142884715466380	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.elf	f5e42b0893ed659
+106	386	8142884715466380	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.bin	f5e42b0893ed659
+106	386	8142884715466380	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.map	f5e42b0893ed659
+386	437	8142884718130942	bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+386	437	8142884718130942	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+368	501	8142884718093943	esp-idf/main/libmain.a	16e5316e3f83e0c4
+437	547	8142884719795659	CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+437	547	8142884719795659	bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+437	547	8142884719795659	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+437	547	8142884719795659	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+501	6233	8142884776443216	esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+501	6233	8142884776443216	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+6234	7072	8142884776624460	JF-Balancer.elf	6b3ea5a80b0ec493
+7072	7635	8142884790619205	.bin_timestamp	63a3940559266c4b
+7072	7635	8142884790619205	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/.bin_timestamp	63a3940559266c4b
+7635	7779	8142884790619205	esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+7635	7779	8142884790619205	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+124	412	8142885418112273	bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+124	412	8142885418112273	bootloader/bootloader.elf	f5e42b0893ed659
+124	412	8142885418112273	bootloader/bootloader.bin	f5e42b0893ed659
+124	412	8142885418112273	bootloader/bootloader.map	f5e42b0893ed659
+124	412	8142885418112273	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+124	412	8142885418112273	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.elf	f5e42b0893ed659
+124	412	8142885418112273	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.bin	f5e42b0893ed659
+124	412	8142885418112273	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.map	f5e42b0893ed659
+107	436	8142885417945695	esp-idf/main/CMakeFiles/__idf_main.dir/jf-balancer.c.obj	47d4e2b44aef7af2
+413	471	8142885421100032	bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+413	471	8142885421100032	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+438	573	8142885421359253	esp-idf/main/libmain.a	16e5316e3f83e0c4
+471	584	8142885422600329	CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+471	584	8142885422600329	bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+471	584	8142885422600329	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+471	584	8142885422600329	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+573	5698	8142885473638530	esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+573	5698	8142885473638530	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+5699	6404	8142885473970332	JF-Balancer.elf	6b3ea5a80b0ec493
+6404	6857	8142885485478228	.bin_timestamp	63a3940559266c4b
+6404	6857	8142885485478228	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/.bin_timestamp	63a3940559266c4b
+6857	7004	8142885485576648	esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+6857	7004	8142885485576648	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+147	407	8142887471683040	bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+147	407	8142887471683040	bootloader/bootloader.elf	f5e42b0893ed659
+147	407	8142887471683040	bootloader/bootloader.bin	f5e42b0893ed659
+147	407	8142887471683040	bootloader/bootloader.map	f5e42b0893ed659
+147	407	8142887471683040	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+147	407	8142887471683040	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.elf	f5e42b0893ed659
+147	407	8142887471683040	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.bin	f5e42b0893ed659
+147	407	8142887471683040	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.map	f5e42b0893ed659
+125	420	8142887471501942	esp-idf/main/CMakeFiles/__idf_main.dir/jf-balancer.c.obj	47d4e2b44aef7af2
+408	462	8142887474325101	bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+408	462	8142887474325101	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+422	540	8142887474381310	esp-idf/main/libmain.a	16e5316e3f83e0c4
+462	558	8142887475672513	CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+462	558	8142887475672513	bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+462	558	8142887475672513	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+462	558	8142887475672513	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+540	5831	8142887528210152	esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+540	5831	8142887528210152	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+5832	6590	8142887528564763	JF-Balancer.elf	6b3ea5a80b0ec493
+6591	7067	8142887540822661	.bin_timestamp	63a3940559266c4b
+6591	7067	8142887540822661	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/.bin_timestamp	63a3940559266c4b
+7068	7190	8142887540822661	esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+7068	7190	8142887540822661	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+106	432	8142891188231611	esp-idf/main/CMakeFiles/__idf_main.dir/jf-balancer.c.obj	47d4e2b44aef7af2
+130	446	8142891188412844	bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+130	446	8142891188412844	bootloader/bootloader.elf	f5e42b0893ed659
+130	446	8142891188412844	bootloader/bootloader.bin	f5e42b0893ed659
+130	446	8142891188412844	bootloader/bootloader.map	f5e42b0893ed659
+130	446	8142891188412844	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	f5e42b0893ed659
+130	446	8142891188412844	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.elf	f5e42b0893ed659
+130	446	8142891188412844	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.bin	f5e42b0893ed659
+130	446	8142891188412844	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.map	f5e42b0893ed659
+447	499	8142891191571015	bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+447	499	8142891191571015	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	8a57aea1cc50e1c4
+434	572	8142891191510023	esp-idf/main/libmain.a	16e5316e3f83e0c4
+499	601	8142891193075792	CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+499	601	8142891193075792	bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+499	601	8142891193075792	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/CMakeFiles/bootloader-complete	94c60653f6d7fe2f
+499	601	8142891193075792	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	94c60653f6d7fe2f
+572	5809	8142891244966014	esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+572	5809	8142891244966014	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esp_system/ld/sections.ld	51605c3429047fe1
+5810	6547	8142891245216830	JF-Balancer.elf	6b3ea5a80b0ec493
+6547	7065	8142891257733225	.bin_timestamp	63a3940559266c4b
+6547	7065	8142891257733225	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/.bin_timestamp	63a3940559266c4b
+7065	7200	8142891257733225	esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
+7065	7200	8142891257733225	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/esptool_py/CMakeFiles/app_check_size	46c16a4510e8cd65
