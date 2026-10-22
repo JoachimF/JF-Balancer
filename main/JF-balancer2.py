@@ -28,7 +28,7 @@ class AcquisitionReelle:
         self.ser = serial.Serial()
         self.ser.port = port
         self.ser.baudrate = baudrate
-        self.ser.timeout = 1.0  # Réactivité accrue pour le temps réel
+        self.ser.timeout = 1.0
         
         # Empêche l'ESP32 de rebooter à l'ouverture sous Windows
         self.ser.setDTR(False)
@@ -45,52 +45,47 @@ class AcquisitionReelle:
             print("Envoi de la commande 'm' pour lancer le cycle...")
             self.ser.write(b'm')
             
-            current_id = None
-            t0_mesure = None  # Synchronisation du temps relatif pour chaque bloc
+            current_accel_id = None
+            current_lockin_id = None
+            t0_mesure = None
             
             while True:
                 ligne = self.ser.readline().decode('utf-8', errors='ignore').strip()
                 if not ligne:
                     continue
-                    
-                # Détection des entêtes de blocs de données de courbe (ex: ###0 à ###4)
-                if ligne.startswith("###") and not ligne.endswith("###") and "=" not in ligne:
+                
+                # --- Détection des blocs de courbes brutes (###accel-1 à ###accel-5) ---
+                if ligne.startswith("###accel-"):
                     try:
-                        current_id = int(ligne.replace("###", ""))
-                        t0_mesure = None  # Réinitialisation du chrono pour la nouvelle courbe
+                        current_accel_id = int(ligne.replace("###accel-", "")) - 1
+                        current_lockin_id = None
+                        t0_mesure = None  # Réinitialisation du temps pour la nouvelle courbe
                         continue
                     except ValueError:
                         pass
                 
-                # Fin de la capture globale (### après la dernière mesure ###4)
-                if ligne == "###" and current_id == (N_MESURES - 1):
-                    print("Fin de transmission détectée.")
-                    data_queue.put({"type": "FIN"})
-                    break
-                    
-                # Extraction des données calculées par le Lock-in de la carte
-                if "Laser count" in ligne:
+                # --- Détection des blocs Lock-In (###lockin1 à ###lockin5) ---
+                elif ligne.startswith("###lockin"):
                     try:
-                        parts = ligne.split('|')
-                        f_ref = float(parts[1].split('=')[1].replace('Hz', '').strip())
-                        amp = float(parts[2].split('=')[1].strip())
-                        angle = float(parts[4].split(':')[1].strip())
-                        
-                        # Envoi des données calculées à l'IHM
-                        data_queue.put({
-                            "type": "LOCKIN",
-                            "index": current_id,
-                            "rpm": f_ref * 60.0,
-                            "amp": amp,
-                            "phase": angle
-                        })
-                    except (IndexError, ValueError) as e:
-                        print("Erreur de parsing de la ligne Lock-in:", e)
+                        current_lockin_id = int(ligne.replace("###lockin", "")) - 1
+                        current_accel_id = None
+                        continue
+                    except ValueError:
+                        pass
                 
-                # Extraction des points de courbe brute (format: temps_us;valeur_Y)
-                if current_id is not None and 0 <= current_id < N_MESURES and ';' in ligne:
+                # Balise de fermeture de bloc (###)
+                elif ligne == "###":
+                    if current_lockin_id == (N_MESURES - 1):
+                        print("Fin globale de transmission détectée.")
+                        data_queue.put({"type": "FIN"})
+                        break
+                    current_accel_id = None
+                    continue
+                
+                # --- Extraction des points de courbe brute (format: temps_us;valeur_Y) ---
+                if current_accel_id is not None and 0 <= current_accel_id < N_MESURES and ';' in ligne:
                     if 't;Y;t' in ligne:
-                        continue  # Ignore l'entête
+                        continue  # Ignore l'entête des colonnes
                     try:
                         elements = ligne.split(';')
                         t_us = float(elements[0])
@@ -100,19 +95,41 @@ class AcquisitionReelle:
                         if t0_mesure is None:
                             t0_mesure = t_s
                             
-                        # Envoi immédiat du point à l'IHM
                         data_queue.put({
                             "type": "POINT",
-                            "index": current_id,
+                            "index": current_accel_id,
                             "t": t_s - t0_mesure,
                             "y": y_val
                         })
                     except (ValueError, IndexError):
                         continue
+                
+                # --- Extraction des variables Lock-in (format: f_ref;amp;angle;...;...) ---
+                elif current_lockin_id is not None and 0 <= current_lockin_id < N_MESURES and ';' in ligne:
+                    try:
+                        elements = ligne.split(';')
+                        f_ref_str = elements[0].strip().lower()
+                        amp_str = elements[1].strip().lower()
+                        angle_str = elements[2].strip().lower()
+                        
+                        # Remplacement des valeurs 'nan' par 0.0 pour éviter les crashs
+                        f_ref = 0.0 if f_ref_str == 'nan' else float(f_ref_str)
+                        amp = 0.0 if amp_str == 'nan' else float(amp_str)
+                        angle = 0.0 if angle_str == 'nan' else float(angle_str)
+                        
+                        data_queue.put({
+                            "type": "LOCKIN",
+                            "index": current_lockin_id,
+                            "rpm": f_ref * 60.0,
+                            "amp": amp,
+                            "phase": angle
+                        })
+                        current_lockin_id = None  # Ligne traitée
+                    except (IndexError, ValueError) as e:
+                        print("Erreur de parsing de la ligne Lock-in:", e)
                         
         except Exception as e:
             data_queue.put({"type": "ERREUR", "msg": str(e)})
-
 
 # --------------------------------------------------------------------------
 # Interface Graphique
@@ -124,7 +141,6 @@ class App(tk.Tk):
         self.source = AcquisitionReelle(port="COM3", baudrate=115200)
         self.data_queue = queue.Queue()
         
-        # Structures pour stocker les lignes de tracé et les données accumulées
         self.lignes_plot = []
         self.donnees_accumulees = {i: {"t": [], "y": [], "rpm": 0.0, "amp": 0.0, "phase": 0.0} for i in range(N_MESURES)}
         self.vector_sum_list = []
@@ -150,7 +166,6 @@ class App(tk.Tk):
         for i in range(N_MESURES):
             ax = self.fig.add_subplot(gs[i, 0], sharex=self.axes[0] if self.axes else None)
             ax.set_ylabel(f"#{i + 1}", color=COULEURS[i])
-            # Initialisation d'une ligne vide mise à jour dynamiquement
             ligne, = ax.plot([], [], lw=0.8, color=COULEURS[i])
             self.lignes_plot.append(ligne)
             self.axes.append(ax)
@@ -183,7 +198,6 @@ class App(tk.Tk):
         self.tab.delete(*self.tab.get_children())
         self._init_polaire()
         
-        # Réinitialisation complète des structures de données
         self.donnees_accumulees = {i: {"t": [], "y": [], "rpm": 0.0, "amp": 0.0, "phase": 0.0} for i in range(N_MESURES)}
         self.vector_sum_list = []
         for i in range(N_MESURES):
@@ -194,17 +208,11 @@ class App(tk.Tk):
         self.canvas.draw_idle()
         self.var_etat.set("Acquisition en temps réel en cours...")
         
-        # Vidage des résidus de la queue
         while not self.data_queue.empty():
-            try:
-                self.data_queue.get_nowait()
-            except queue.Empty:
-                break
+            try: self.data_queue.get_nowait()
+            except queue.Empty: break
             
-        # Lancement de l'acquisition en arrière-plan
         threading.Thread(target=self.source.lancer_cycle_async, args=(self.data_queue,), daemon=True).start()
-        
-        # Lancement du rafraîchissement synchrone avec l'IHM
         self.after(20, self.traiter_queue)
 
     def traiter_queue(self):
@@ -231,18 +239,16 @@ class App(tk.Tk):
                     self.donnees_accumulees[idx]["amp"] = msg["amp"]
                     self.donnees_accumulees[idx]["phase"] = msg["phase"]
                     
-                    # Remplissage dynamique du tableau de synthèse
                     self.tab.insert("", "end", values=(
                         idx + 1, f"{msg['rpm']:.1f}", f"{msg['amp']:.4f}", f"{msg['phase']:.1f}"
                     ))
                     
-                    # Mise à jour du graphique polaire
-                    self.ax_pol.plot(np.radians(msg["phase"]), msg["amp"], "o", ms=9, color=COULEURS[idx])
-                    self.vector_sum_list.append(msg["amp"] * np.exp(1j * np.radians(msg["phase"])))
+                    if msg["amp"] > 0:  # N'affiche sur le plan polaire que les valeurs non nulles
+                        self.ax_pol.plot(np.radians(msg["phase"]), msg["amp"], "o", ms=9, color=COULEURS[idx])
+                        self.vector_sum_list.append(msg["amp"] * np.exp(1j * np.radians(msg["phase"])))
                     self.canvas.draw_idle()
                     
             elif msg["type"] == "FIN":
-                # Calcul de la moyenne vectorielle globale en fin de cycle
                 if self.vector_sum_list:
                     z_moy = np.mean(self.vector_sum_list)
                     self.ax_pol.annotate("", xy=(np.angle(z_moy), abs(z_moy)), xytext=(0, 0),
@@ -264,7 +270,6 @@ class App(tk.Tk):
                 self.btn.config(state="normal")
                 return
 
-        # Rafraîchissement global des graphiques temporels si de nouveaux points sont arrivés
         if points_recus:
             for i in range(N_MESURES):
                 t_data = self.donnees_accumulees[i]["t"]
@@ -275,9 +280,7 @@ class App(tk.Tk):
                     self.axes[i].autoscale_view(scalex=True, scaley=True)
             self.canvas.draw_idle()
 
-        # Rappel récursif pour maintenir la fluidité d'affichage
         self.after(20, self.traiter_queue)
-
 
 if __name__ == "__main__":
     App().mainloop()

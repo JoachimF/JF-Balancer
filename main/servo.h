@@ -8,7 +8,7 @@
 
 #define SERVO_FREQ_HZ        100
 #define SERVO_PERIOD_US      (1000000 / SERVO_FREQ_HZ)   // 10000 µs
-#define SERVO_MIN_US         900
+#define SERVO_MIN_US         0
 #define SERVO_MAX_US         2100
 #define SERVO_TIMER          LEDC_TIMER_0
 #define SERVO_SPEED_MODE     LEDC_LOW_SPEED_MODE

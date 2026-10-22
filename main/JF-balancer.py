@@ -43,7 +43,7 @@ class AcquisitionReelle:
         self.ser.write(b'm')
         
         # Préparation des conteneurs pour les 5 mesures
-        mesures_data = {i: {"t": [], "y": [], "rpm": 0.0, "amp": 0.0, "phase": 0.0} for i in range(1, N_MESURES + 1)}
+        mesures_data = {i: {"t": [], "y": [], "rpm": 0.0, "amp": 0.0, "angle": 0.0} for i in range(1, N_MESURES + 1)}
         current_id = None
         
         while True:
@@ -52,9 +52,9 @@ class AcquisitionReelle:
                 continue
                 
             # Détection des entêtes de blocs de données de courbe (ex: ###1)
-            if ligne.startswith("###") and not ligne.endswith("###") and "=" not in ligne:
+            if ligne.startswith("###accel-") and not ligne.endswith("###") and "=" not in ligne:
                 try:
-                    current_id = int(ligne.replace("###", ""))
+                    current_id = int(ligne.replace("###accel-", ""))
                     continue
                 except ValueError:
                     pass
@@ -65,13 +65,13 @@ class AcquisitionReelle:
                 break
                 
             # Extraction des données calculées par le Lock-in de la carte
-            if "Laser count" in ligne:
+            if "###lockin" in ligne:
                 try:
-                    parts = ligne.split('|')
+                    parts = ligne.split(';')
                     # Extraction propre des valeurs
-                    f_ref = float(parts[1].split('=')[1].replace('Hz', '').strip())
-                    amp = float(parts[2].split('=')[1].strip())
-                    angle = float(parts[4].split(':')[1].strip())
+                    f_ref = float(parts[1].strip()) #f_ref
+                    amp = float(parts[2].strip()) #amplitude
+                    angle = float(parts[5].strip()) #angle
                     
                     # On associe ces caractéristiques au bloc en cours
                     target_id = len([k for k, v in mesures_data.items() if v["amp"] > 0]) + 1

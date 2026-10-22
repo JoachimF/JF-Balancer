@@ -189,8 +189,8 @@ void declencher_mesure(uint16_t c_rpm) {
 void envoyer_donnees_mesure(void) {
     printf("\n[Console] Envoi des donnees de la FFT...\n");
     // Mettre votre boucle de printf pour exporter le spectre de la FFT
-    printf("###%d\n",mesure) ;
-    printf("t;Y;t\n") ;
+    printf("###accel-%d\n",mesure) ;
+    printf("t;Y\n") ;
     for(int j=0;j<SAMPLES*2;j+=2)
     {
         //printf("%.0f;%f;%f\n",data_x[j],data_x[j+1],data_y[j+1]) ;
@@ -436,9 +436,12 @@ void task_lecture_donnee()
         data_output[mesure].angle = angle_corrige ;
         mesure++;
 
-        printf("Laser count : %ld | f_ref = %.2f Hz | amplitude = %.4f | phase = %.1f deg (n=%d) | angle : %.1f\n",laser_count,f_ref, r.amp, r.phase_deg, r.n_used,angle_corrige);
+        //printf("Laser count : %ld | f_ref = %.2f Hz | amplitude = %.4f | phase = %.1f deg (n=%d) | angle : %.1f\n",laser_count,f_ref, r.amp, r.phase_deg, r.n_used,angle_corrige);
         mesure_encours = false ;
         envoyer_donnees_mesure() ;
+        printf("###lockin%d\n",mesure) ;
+        printf("%f;%f;%f;%d;%f\n",f_ref,r.amp,r.phase_deg,r.n_used,angle_corrige) ;
+        printf("###\n") ;
         vTaskSuspend(NULL) ;
     }
 
@@ -472,7 +475,7 @@ void task_regul_rpm()
         }else{
             ppm = 1000 ;
             rpm_ok = 0 ;
-            ESP_ERROR_CHECK(servo_set_pulse_us(&esc,ppm)) ;
+            ESP_ERROR_CHECK(servo_set_pulse_us(&esc,0)) ;
             //vTaskDelay(50 / portTICK_PERIOD_MS); 
         }
         if(rpm_ok > 50)
