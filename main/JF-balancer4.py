@@ -83,9 +83,10 @@ class AcquisitionReelle:
                         if len(elements) >= 5:
                             f_ref = float(elements[0]) if elements[0].lower() != "nan" else 0.0
                             amp = float(elements[1]) if elements[1].lower() != "nan" else 0.0
-                            phase = float(elements[2]) if elements[1].lower() != "nan" else 0.0
+                            c_amp = float(elements[2]) if elements[1].lower() != "nan" else 0.0
+                            phase = float(elements[3]) if elements[1].lower() != "nan" else 0.0
                             angle = float(elements[-1]) if elements[-1].lower() != "nan" else 0.0
-                            data_queue.put({"type": "LOCKIN", "index": current_lockin_id, "rpm": f_ref * 60.0, "amp": amp, "phase" : phase, "angle": angle})
+                            data_queue.put({"type": "LOCKIN", "index": current_lockin_id, "rpm": f_ref * 60.0, "amp": amp, "c_amp": c_amp, "phase" : phase, "angle": angle})
                         current_lockin_id = None
                     except (IndexError, ValueError):
                         pass
@@ -100,7 +101,7 @@ class App(tk.Tk):
         self.source = AcquisitionReelle(port="COM3", baudrate=115200)
         self.data_queue = queue.Queue()
         self.lignes_plot = []
-        self.donnees_accumulees = {i: {"t": [], "y": [], "rpm": 0.0, "amp": 0.0, "phase": 0.0, "angle" : 0.0} for i in range(N_MESURES)}
+        self.donnees_accumulees = {i: {"t": [], "y": [], "rpm": 0.0, "amp": 0.0, "c_amp": 0.0, "phase": 0.0, "angle" : 0.0} for i in range(N_MESURES)}
         self.vector_sum_list = []
 
         self.main_container = ttk.Frame(self)
@@ -148,8 +149,8 @@ class App(tk.Tk):
     def _tableau(self):
         cadre_tab = ttk.Frame(self.scrollable_frame, padding=8)
         cadre_tab.pack(fill="x", padx=8, pady=8)
-        cols = ("n", "rpm", "amp", "phase", "angle")
-        titres = ("Mesure", "Vitesse (tr/min)", "Amplitude", "Phase", "Angle (°)")
+        cols = ("n", "rpm", "amp", "c_amp", "phase", "angle")
+        titres = ("Mesure", "Vitesse (tr/min)", "Amplitude", "C_Amplitude", "Phase", "Angle (°)")
         self.tab = ttk.Treeview(cadre_tab, columns=cols, show="headings", height=6)
         for c, ti in zip(cols, titres):
             self.tab.heading(c, text=ti)
@@ -165,7 +166,7 @@ class App(tk.Tk):
         self.ax_pol.clear()
         self.ax_pol.set_theta_zero_location("N")
         self.ax_pol.set_theta_direction(-1)
-        self.donnees_accumulees = {i: {"t": [], "y": [], "rpm": 0.0, "amp": 0.0, "phase": 0.0} for i in range(N_MESURES)}
+        self.donnees_accumulees = {i: {"t": [], "y": [], "rpm": 0.0, "amp": 0.0, "c_amp": 0.0, "phase": 0.0} for i in range(N_MESURES)}
         self.vector_sum_list = []
         for i in range(N_MESURES):
             self.lignes_plot[i].set_data([], [])
@@ -192,19 +193,20 @@ class App(tk.Tk):
                 if idx is not None and 0 <= idx < N_MESURES:
                     self.donnees_accumulees[idx]["rpm"] = msg["rpm"]
                     self.donnees_accumulees[idx]["amp"] = msg["amp"]
+                    self.donnees_accumulees[idx]["c_amp"] = msg["c_amp"]
                     self.donnees_accumulees[idx]["phase"] = msg["phase"]
                     self.donnees_accumulees[idx]["angle"] = msg["angle"]
-                    self.tab.insert("", "end", values=(idx + 1, f"{msg['rpm']:.1f}", f"{msg['amp']:.4f}", f"{msg['phase']:.1f}", f"{msg['angle']:.1f}"))
-                    if msg["amp"] > 0:
-                        self.ax_pol.plot(np.radians(msg["angle"]), msg["amp"], "o", ms=9, color=COULEURS[idx])
-                        self.vector_sum_list.append(msg["amp"] * np.exp(1j * np.radians(msg["phase"])))
+                    self.tab.insert("", "end", values=(idx + 1, f"{msg['rpm']:.1f}", f"{msg['amp']:.4f}", f"{msg['c_amp']:.4f}", f"{msg['phase']:.1f}", f"{msg['angle']:.1f}"))
+                    if msg["c_amp"] > 0:
+                        self.ax_pol.plot(np.radians(msg["angle"]), msg["c_amp"], "o", ms=9, color=COULEURS[idx])
+                        self.vector_sum_list.append(msg["c_amp"] * np.exp(1j * np.radians(msg["angle"])))
                     self.graph_canvas.draw_idle()
             elif msg["type"] == "FIN":
                 if self.vector_sum_list:
                     z_moy = np.mean(self.vector_sum_list)
                     self.ax_pol.annotate("", xy=(np.angle(z_moy), abs(z_moy)), xytext=(0, 0), arrowprops=dict(arrowstyle="->", lw=2.5, color="black"))
-                    max_amp = max([self.donnees_accumulees[i]["amp"] for i in range(N_MESURES)])
-                    self.ax_pol.set_rlim(0, (max_amp if max_amp > 0 else 1.0) * 1.3)
+                    max_amp = max([self.donnees_accumulees[i]["c_amp"] for i in range(N_MESURES)])
+                    #self.ax_pol.set_rlim(0,(max_amp if max_amp > 0 else 1.0) * 1.3)
                     self.var_etat.set(f"Moyenne : {abs(z_moy):.4f} à {np.degrees(np.angle(z_moy)) % 360:.1f}°")
                 else: self.var_etat.set("Cycle terminé.")
                 self.graph_canvas.draw_idle()

@@ -65,7 +65,7 @@ class AcquisitionReelle:
                 break
                 
             # Extraction des données calculées par le Lock-in de la carte
-            if "###lockin" in ligne:
+            if ligne.startswith("###lockin") and not ligne.endswith("###") and "=" not in ligne:
                 try:
                     parts = ligne.split(';')
                     # Extraction propre des valeurs

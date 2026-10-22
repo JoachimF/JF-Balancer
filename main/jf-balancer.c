@@ -53,7 +53,7 @@ typedef struct {
 servo_t esc ;
 uint32_t RPM ;
 uint32_t ppm ;
-uint32_t laser_rpm ;
+
 bool rpm_rdy ;
 bool mesure_encours ;
 uint16_t mesure ;
@@ -72,9 +72,10 @@ TaskHandle_t regul_rpm ;
 static EventGroupHandle_t data_rdy;
 
 bool is_first = 1 ;
-uint64_t start_time ;
-uint32_t freq_laser ;
-uint64_t period ;
+static volatile uint64_t start_time ;
+static volatile uint32_t freq_laser ;
+static volatile uint64_t period ;
+static volatile uint32_t laser_rpm ;
 mpu6050_dev_t dev = { 0 };
 uint32_t nb_sample = 0 ;
 bool get_data = 0 ;
@@ -110,7 +111,7 @@ static void IRAM_ATTR laser_isr(void *arg)
     if (laser_count == 0) 
         laser_first = now;
     period = now - laser_last ;
-    freq_laser = 1000000U / period ;
+    if(period > 0) freq_laser = 1000000 / period ;
     laser_rpm = freq_laser * 60 ;
     laser_last = now;
 
@@ -151,7 +152,24 @@ lockin_result_t lockin(const uint32_t *t_us, const float *x, int n, double f_ref
     return r;
 }
 
-#define K_DEG_PER_HZ   2.59459f  
+#define K_DEG_PER_HZ   1.978955888f     //2.59459f  
+#define K_APM_PER_HZ   0.7372362f //0.007307951f
+
+float obtenir_amplitude_corrige(float amplitude_brute, float f_ref)
+{
+    // Évite la division par zéro ou les aberrations à l'arrêt
+    if (f_ref < 2.0f) {
+        return 0.0f;
+    }
+    
+    // Calcul du ratio de vitesse (w / w_ref)
+    float ratio = f_ref / 33;
+    
+    // Correction quadratique : l'accélération mécanique augmente avec le carré de la vitesse
+    float amp_corrigee = amplitude_brute / (ratio);
+    
+    return amp_corrigee;
+}
 
 float obtenir_angle_corrige(float angle_brut_deg, float f_ref)
 {
@@ -201,7 +219,7 @@ void envoyer_donnees_mesure(void) {
 
 void lancer_les_mesure(void)
 {
-    uint16_t rpms[] = {1000,1500,1750,2000,2500} ;
+    uint16_t rpms[] = {2000,2250,2500,2750,3000} ;
     mesure = 0 ;
     printf("###sample=%d###\n",SAMPLES);
     while(mesure < 5)
@@ -428,9 +446,10 @@ void task_lecture_donnee()
 
         lockin_result_t r = lockin(tus, sig, SAMPLES, f_ref, t_laser0); 
         float angle_corrige = obtenir_angle_corrige(r.phase_deg,f_ref) ;
+        float amp_corrigee = obtenir_amplitude_corrige(r.amp,f_ref) ;
 
         data_output[mesure].f_ref = f_ref ;
-        data_output[mesure].amplitude = r.amp ;
+        data_output[mesure].amplitude = amp_corrigee ; //r.amp ;
         data_output[mesure].phase = r.phase_deg ;
         data_output[mesure].deg = r.n_used ; 
         data_output[mesure].angle = angle_corrige ;
@@ -440,7 +459,7 @@ void task_lecture_donnee()
         mesure_encours = false ;
         envoyer_donnees_mesure() ;
         printf("###lockin%d\n",mesure) ;
-        printf("%f;%f;%f;%d;%f\n",f_ref,r.amp,r.phase_deg,r.n_used,angle_corrige) ;
+        printf("%f;%f;%f;%f;%d;%f\n",f_ref,r.amp,amp_corrigee,r.phase_deg,r.n_used,angle_corrige) ;
         printf("###\n") ;
         vTaskSuspend(NULL) ;
     }
