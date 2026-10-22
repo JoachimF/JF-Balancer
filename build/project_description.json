@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "JF-Balancer",
-    "project_version":    "1",
+    "project_version":    "8628a2a-dirty",
     "project_path":       "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer",
     "idf_path":           "C:/esp/v5.2.6/esp-idf",
     "build_dir":          "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build",
@@ -880,7 +880,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "esp-idf-lib__mpu6050", "espressif__esp-dsp", "espressif__led_strip" ],
             "file": "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/main/jf-balancer.c" ],
+            "sources": [ "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/main/servo.c", "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/main/jf-balancer.c" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {

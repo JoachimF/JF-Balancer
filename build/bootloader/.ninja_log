@@ -1,64 +1,64 @@
 # ninja log v6
 35	214	8141936785549063	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_crc.c.obj	5d5afccc62298620
-58	618	8141967602770024	esp-idf/log/CMakeFiles/__idf_log.dir/log_buffers.c.obj	117673e6bf70e2fb
 2116	2553	8141967623417221	esp-idf/esp_bootloader_format/CMakeFiles/__idf_esp_bootloader_format.dir/esp_bootloader_desc.c.obj	f66fb5ba3a2e678d
 117	444	8141967603434547	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_longjmp.S.obj	1127543e237ba5f0
+58	618	8141967602770024	esp-idf/log/CMakeFiles/__idf_log.dir/log_buffers.c.obj	117673e6bf70e2fb
 65	542	8141967602931591	esp-idf/log/CMakeFiles/__idf_log.dir/log_noos.c.obj	445222dacdf32217
 72	418	8141967602931591	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_sys.c.obj	fd7b912fae3d2590
 2199	2622	8141967624251141	esp-idf/hal/CMakeFiles/__idf_hal.dir/mpu_hal.c.obj	b31067fc2f7fb796
 81	586	8141967603138994	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_uart.c.obj	4ea2e2a891b58fc8
-108	575	8141967603265808	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_gpio.c.obj	303ebf8cb80027bf
 99	433	8141967603265808	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_efuse.c.obj	4f18422adcda1899
+108	575	8141967603265808	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_gpio.c.obj	303ebf8cb80027bf
 3419	3650	8141967636463066	esp-idf/efuse/libefuse.a	24440ca71a015b4b
 52	564	8141967602770024	esp-idf/log/CMakeFiles/__idf_log.dir/log.c.obj	79fecefe5e8a19fa
 158	531	8141967603916896	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/esp_memory_utils.c.obj	1394366c055d07be
-668	1237	8141967608955304	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_fields.c.obj	f8aaa41f69efa9a7
-575	1202	8141967608072885	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32/esp_efuse_table.c.obj	c550b93eee644a3e
 145	607	8141967603766897	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/esp_cpu_intr.c.obj	5c7a30e1939f43cf
+575	1202	8141967608072885	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32/esp_efuse_table.c.obj	c550b93eee644a3e
+668	1237	8141967608955304	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_fields.c.obj	f8aaa41f69efa9a7
+586	1083	8141967608190553	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32/esp_efuse_fields.c.obj	c42678f77a3ce6b8
 126	596	8141967603594740	esp-idf/esp_common/CMakeFiles/__idf_esp_common.dir/src/esp_err_to_name.c.obj	dbb5d89210149e62
 1084	1604	8141967613169347	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_clock_init.c.obj	a932379644e45667
-586	1083	8141967608190553	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32/esp_efuse_fields.c.obj	c42678f77a3ce6b8
 135	668	8141967603683681	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/cpu.c.obj	ba90c6aae724c4dd
 419	1349	8141967606424298	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/rtc_clk.c.obj	ded79f2c298c5c3
+168	553	8141967603924298	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/cpu_region_protect.c.obj	4e39f5d5c8852018
 5072	5731	8141967659574871	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/.bin_timestamp	69d14bc7e3785aa8
 543	1252	8141967607757038	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/rtc_time.c.obj	afc7d8a6ffe94199
-168	553	8141967603924298	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/cpu_region_protect.c.obj	4e39f5d5c8852018
-906	1631	8141967611257169	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_utility.c.obj	b1c88b3d066ec19f
-1061	1684	8141967612921667	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_common.c.obj	3a610cc14022284e
 553	1095	8141967607757038	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/chip_info.c.obj	876044a2295a24cd
+1061	1684	8141967612921667	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_common.c.obj	3a610cc14022284e
+906	1631	8141967611257169	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_utility.c.obj	b1c88b3d066ec19f
+89	906	8141967603218976	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_spiflash.c.obj	eca66c378c5a7858
+1684	2218	8141967619167055	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_console_loader.c.obj	1a9ce6ac1d07d175
 1349	2116	8141967615754327	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/bootloader_flash/src/flash_qio_mode.c.obj	a8bfd3e623826715
 2433	2739	8141967626663775	esp-idf/soc/CMakeFiles/__idf_soc.dir/dport_access_common.c.obj	6c2f936d509139c0
-1684	2218	8141967619167055	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_console_loader.c.obj	1a9ce6ac1d07d175
-89	906	8141967603218976	esp-idf/esp_rom/CMakeFiles/__idf_esp_rom.dir/patches/esp_rom_spiflash.c.obj	eca66c378c5a7858
-1252	1801	8141967614754534	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_encrypt.c.obj	62158052fbd73440
-531	1317	8141967607635536	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/rtc_sleep.c.obj	afe20071a5da3fe5
 564	1061	8141967607922785	esp-idf/esp_system/CMakeFiles/__idf_esp_system.dir/esp_err.c.obj	18b869ca68f80c8
+531	1317	8141967607635536	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/rtc_sleep.c.obj	afe20071a5da3fe5
+1252	1801	8141967614754534	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_encrypt.c.obj	62158052fbd73440
 444	1047	8141967606768225	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/rtc_init.c.obj	ca740daa7e24dbb2
 618	1299	8141967608422936	esp-idf/log/liblog.a	780b9095c1cf566
 433	1071	8141967606666911	esp-idf/esp_hw_support/CMakeFiles/__idf_esp_hw_support.dir/port/esp32/rtc_clk_init.c.obj	a15a1ffe4a1c2823
+607	1289	8141967608361420	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_api.c.obj	b7a18e3088cbfe78
 2694	3016	8141967629248942	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/pcnt_periph.c.obj	92c5b4d707b4c9d6
 1289	1673	8141967615128422	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/secure_boot.c.obj	1b9a05ea4bc777cc
-607	1289	8141967608361420	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_api.c.obj	b7a18e3088cbfe78
 596	1327	8141967608256276	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32/esp_efuse_utility.c.obj	63941ee78adfabaf
-2010	2587	8141967622418174	esp-idf/esp_common/libesp_common.a	b5454eb8a513a9bf
 1203	1593	8141967614265047	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_random.c.obj	4f370d19bc6d3b90
-2391	2852	8141967626233570	esp-idf/hal/CMakeFiles/__idf_hal.dir/esp32/cache_hal_esp32.c.obj	f1b3e0613ee1829e
+2010	2587	8141967622418174	esp-idf/esp_common/libesp_common.a	b5454eb8a513a9bf
 1096	1698	8141967613254254	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_mem.c.obj	b5a816e8e70fe718
 1327	2347	8141967615603276	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/bootloader_flash/src/bootloader_flash.c.obj	449762d2a8622bed
+2391	2852	8141967626233570	esp-idf/hal/CMakeFiles/__idf_hal.dir/esp32/cache_hal_esp32.c.obj	f1b3e0613ee1829e
 1047	1663	8141967612755455	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/efuse_controller/keys/without_key_purposes/three_key_blocks/esp_efuse_api_key.c.obj	2bba97e1ce2574d0
-2218	2717	8141967624416793	esp-idf/hal/CMakeFiles/__idf_hal.dir/efuse_hal.c.obj	41dcfd0e1e01cec8
 1237	1652	8141967614703556	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_efuse.c.obj	4b586e20f03e1632
+2218	2717	8141967624416793	esp-idf/hal/CMakeFiles/__idf_hal.dir/efuse_hal.c.obj	41dcfd0e1e01cec8
 1071	1615	8141967612921667	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_common_loader.c.obj	dcf4a01db69ae85e
 2135	2612	8141967623680935	esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/spi_flash_wrap.c.obj	9bb034a9c9655ca8
 1317	1722	8141967615421034	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_random_esp32.c.obj	8e07340bbf2fd337
 1615	2154	8141967618459139	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_partitions.c.obj	fe25fa5ebaddc690
 1299	2010	8141967615254918	esp-idf/esp_rom/libesp_rom.a	d9b63fab48dfbae8
-1652	2247	8141967618764574	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_init.c.obj	92ba849f5ffabec8
 1663	2135	8141967618920368	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_clock_loader.c.obj	167e76e72ab6219
-1980	2182	8141936805020712	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/interrupts.c.obj	7aa34b3ff7bf5a93
-2237	2727	8141967624700778	esp-idf/hal/CMakeFiles/__idf_hal.dir/esp32/efuse_hal.c.obj	eea5354792af4430
-1801	2391	8141967620253163	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_panic.c.obj	e4be9bb77c69e11a
+1652	2247	8141967618764574	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_init.c.obj	92ba849f5ffabec8
 1593	2433	8141967618253419	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/bootloader_flash/src/bootloader_flash_config_esp32.c.obj	5e5a3f62c23063dc
+1801	2391	8141967620253163	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_panic.c.obj	e4be9bb77c69e11a
+2237	2727	8141967624700778	esp-idf/hal/CMakeFiles/__idf_hal.dir/esp32/efuse_hal.c.obj	eea5354792af4430
+1980	2182	8141936805020712	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/interrupts.c.obj	7aa34b3ff7bf5a93
 1418	1692	8141936799368982	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32/bootloader_soc.c.obj	984ac34ff25b0047
 1698	2199	8141967619252552	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32/bootloader_sha.c.obj	2a5b35602b1f7e32
 1604	2575	8141967618253419	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_utility.c.obj	642b8f808184ad31
@@ -67,8 +67,8 @@
 1631	2693	8141967618641980	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp_image_format.c.obj	e1aa50d795c3cf91
 1722	2481	8141967619418352	esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32/bootloader_esp32.c.obj	7badf6947c34652d
 2575	2902	8141967628079513	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/dport_access.c.obj	3b5ff39d1ee0c2af
-2852	3198	8141967630768987	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/timer_periph.c.obj	c1a6cabf2c1092c2
 1948	2276	8141936804696327	esp-idf/soc/CMakeFiles/__idf_soc.dir/lldesc.c.obj	f0d8e34343d22e76
+2852	3198	8141967630768987	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/timer_periph.c.obj	c1a6cabf2c1092c2
 2554	2959	8141967627757448	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/uart_periph.c.obj	ae2c78b7267e34eb
 2613	2944	8141967628416136	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/adc_periph.c.obj	63923175db95577b
 2481	2881	8141967627135487	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/gpio_periph.c.obj	e85b47d36fd4a234
@@ -79,10 +79,10 @@
 2682	3027	8141967629154588	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/ledc_periph.c.obj	b0e2a04a4bf4bae2
 2347	3005	8141967625750791	esp-idf/hal/CMakeFiles/__idf_hal.dir/mmu_hal.c.obj	d9741a4bb833aff8
 2587	3215	8141967628194858	esp-idf/esp_hw_support/libesp_hw_support.a	c8ff1cb82f5459d7
-2882	3257	8141967631143289	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/lcd_periph.c.obj	8e43ea614b3cde47
 2739	3093	8141967629678920	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/i2s_periph.c.obj	9dda464145268ce
-2613	2706	8141936812193635	project_elf_src_esp32.c	9d28a2945228ff50
+2882	3257	8141967631143289	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/lcd_periph.c.obj	8e43ea614b3cde47
 2752	3082	8141967629764798	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/i2c_periph.c.obj	3ceba3d1c43e28fe
+2613	2706	8141936812193635	project_elf_src_esp32.c	9d28a2945228ff50
 2902	3197	8141967631249298	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/mcpwm_periph.c.obj	15f4d4bb299cce4e
 3005	3244	8141967632262761	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/dac_periph.c.obj	23c395b99f104058
 3016	3274	8141967632425846	esp-idf/soc/CMakeFiles/__idf_soc.dir/esp32/rtc_io_periph.c.obj	bab68dfa3a0838fb
@@ -108,49 +108,50 @@
 4668	4837	8141967649005761	esp-idf/main/libmain.a	cf221b4c31e09ca3
 4837	5072	8141967650624904	bootloader.elf	3104be4675a545f9
 5072	5731	8141967659574871	.bin_timestamp	69d14bc7e3785aa8
-39	207	8142099830630997	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-39	207	8142099830630997	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-16	41908	8142101016398609	build.ninja	2c5ecb96c552c8c3
+25	194	8143754236123471	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+25	194	8143754236123471	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
 15	44643	8142101016398609	build.ninja	2c5ecb96c552c8c3
-45	224	8142101017546928	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-45	224	8142101017546928	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-24	184	8142103639487727	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-24	184	8142103639487727	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-88	646	8142119321842734	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-88	646	8142119321842734	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-30	206	8142120099584111	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-30	206	8142120099584111	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-31	228	8142146518439909	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-31	228	8142146518439909	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	200	8142147394834609	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	200	8142147394834609	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-39	231	8142148507781773	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-39	231	8142148507781773	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-22	195	8142149764885191	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-22	195	8142149764885191	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	206	8142153057184346	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	206	8142153057184346	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	212	8142155471534229	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	212	8142155471534229	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-36	235	8142157425271737	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-36	235	8142157425271737	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-31	208	8142161824181747	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-31	208	8142161824181747	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-35	234	8142867452182626	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-35	234	8142867452182626	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	198	8142867707570228	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	198	8142867707570228	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-62	611	8142882632884150	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-62	611	8142882632884150	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-20	175	8142883141256648	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-20	175	8142883141256648	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	200	8142883898148215	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-32	200	8142883898148215	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-27	197	8142884716445889	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-27	197	8142884716445889	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-31	204	8142885419278321	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-31	204	8142885419278321	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-21	182	8142887472602428	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-21	182	8142887472602428	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-29	217	8142891189456030	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
-29	217	8142891189456030	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+31	185	8143755058980021	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+31	185	8143755058980021	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+22	202	8143759277012938	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+22	202	8143759277012938	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+28	206	8143759493969317	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+28	206	8143759493969317	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	213	8143763133536410	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	213	8143763133536410	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+27	187	8143763304806189	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+27	187	8143763304806189	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+34	217	8143763938233430	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+34	217	8143763938233430	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+35	204	8143764742795273	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+35	204	8143764742795273	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+34	202	8143767184804663	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+34	202	8143767184804663	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+30	200	8143768419083413	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+30	200	8143768419083413	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+30	192	8143770878339025	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+30	192	8143770878339025	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+23	177	8143774315550182	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+23	177	8143774315550182	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	232	8143777735327052	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	232	8143777735327052	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	188	8143779453101786	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	188	8143779453101786	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+31	220	8143779651323049	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+31	220	8143779651323049	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+31	209	8143781522043416	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+31	209	8143781522043416	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+29	196	8143784286444373	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+29	196	8143784286444373	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	218	8143789165577316	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	218	8143789165577316	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+56	366	8143811595247611	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+56	366	8143811595247611	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	194	8143811945983804	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+32	194	8143811945983804	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+35	200	8143813323576732	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+35	200	8143813323576732	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+35	221	8143813899169069	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+35	221	8143813899169069	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+35	197	8143819343454472	esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
+35	197	8143819343454472	C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/esp-idf/esptool_py/CMakeFiles/bootloader_check_size	59d06b7b8e19a921
