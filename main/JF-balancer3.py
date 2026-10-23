@@ -169,7 +169,7 @@ class App(tk.Tk):
         for i in range(N_MESURES):
             self.lignes_plot[i].set_data([], [])
             self.axes[i].relim()
-            self.axes[i].autoscale_view()
+            self.axes[i].autoscale_view(scalex=True, scaley=False)
         self.graph_canvas.draw_idle()
         self.var_etat.set("Acquisition en cours...")
         threading.Thread(target=self.source.lancer_cycle_async, args=(self.data_queue,), daemon=True).start()
@@ -219,7 +219,7 @@ class App(tk.Tk):
                 if t_data:
                     self.lignes_plot[i].set_data(t_data, y_data)
                     self.axes[i].relim()
-                    self.axes[i].autoscale_view(scalex=True, scaley=True)
+                    self.axes[i].autoscale_view(scalex=True, scaley=False)
             self.graph_canvas.draw_idle()
         self.after(20, self.traiter_queue)
 

@@ -24,7 +24,7 @@
 #define MPU60502_INT_PIN 12
 #define LASER_INT_PIN 4
 #define ADDR 0x68
-#define SAMPLES 128
+#define SAMPLES 1024
 #define RPM_ERROR 50
 #define STABILIZATION_TIME 7000
 
@@ -497,7 +497,7 @@ void task_lecture_donnee()
             #ifndef GYRO2
                 nb_sample2 = nb_sample ;
                 raw_data2[nb_sample].time = (float)current_time - (float)start_time ;
-                raw_data2[nb_sample].gyroy = accel.y / 100 ;
+                raw_data2[nb_sample].gyroy = accel.y / 10 ;
                 nb_sample2++ ;
             #endif
             nb_sample++ ;

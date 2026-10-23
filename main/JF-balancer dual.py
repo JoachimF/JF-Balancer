@@ -206,13 +206,14 @@ class App(tk.Tk):
         self.ax_pol = self.fig.add_subplot(gs[:3, 2], projection="polar")
         self.ax_pol.set_theta_zero_location("N")
         self.ax_pol.set_theta_direction(-1)
-        self.ax_pol.set_ylim(0, 2)
+        self.ax_pol.set_ylim(0, 0.3)
+        
         self.ax_pol.set_title("Avant")
 
         self.ax_pol2 = self.fig.add_subplot(gs[3:, 2], projection="polar")
         self.ax_pol2.set_theta_zero_location("N")
         self.ax_pol2.set_theta_direction(-1)
-        self.ax_pol2.set_ylim(0, 2)
+        self.ax_pol2.set_ylim(0, 0.3)
         self.ax_pol2.set_title("Arrière")
 
         self.graph_canvas = FigureCanvasTkAgg(self.fig, master=self.scrollable_frame)
@@ -240,12 +241,12 @@ class App(tk.Tk):
         self.ax_pol.clear()
         self.ax_pol.set_theta_zero_location("N")
         self.ax_pol.set_theta_direction(-1)
-        self.ax_pol.set_ylim(0, 2)
+        self.ax_pol.set_ylim(0, 0.3)
 
         self.ax_pol2.clear()
         self.ax_pol2.set_theta_zero_location("N")
         self.ax_pol2.set_theta_direction(-1)
-        self.ax_pol2.set_ylim(0, 2)
+        self.ax_pol2.set_ylim(0, 0.3)
 
         self.donnees_accumulees = {i: {"t1": [], "y1": [], "rpm1": 0.0, "amp1": 0.0, "c_amp1": 0.0, "phase1": 0.0} for i in range(N_MESURES)}
         self.donnees_accumulees2 = {j: {"t2": [], "y2": [], "rpm2": 0.0, "amp2": 0.0, "c_amp2": 0.0, "phase2": 0.0} for j in range(N_MESURES)}
@@ -256,11 +257,11 @@ class App(tk.Tk):
             self.lignes_plot[i].set_data([], [])
             self.lignes_plot2[i].set_data([], [])
             self.axes[i].relim()
-            #self.axes[i].autoscale_view()
-            self.axes1[j].set_ylim(-1, 1)
+            self.axes[i].autoscale_view(scalex=True, scaley=False)
+            self.axes[i].set_ylim(-0.5, 0.5)
             self.axes2[i].relim()
-            #self.axes2[i].autoscale_view()
-            self.axes2[j].set_ylim(-1, 1)
+            self.axes2[i].autoscale_view(scalex=True, scaley=False)
+            self.axes2[i].set_ylim(-0.5, 0.5)
 
         self.graph_canvas.draw_idle()
         self.var_etat.set("Attente de la mesure 1")
@@ -339,8 +340,8 @@ class App(tk.Tk):
                 y_data = self.donnees_accumulees[i]["y1"]
                 if t_data:
                     self.lignes_plot[i].set_data(t_data, y_data)
-                    #self.axes[i].relim()
-                    #self.axes[i].autoscale_view(scalex=True, scaley=True)
+                    self.axes[i].relim()
+                    self.axes[i].autoscale_view(scalex=True, scaley=False)
             self.graph_canvas.draw_idle()
         if points_recus2:
             for j in range(N_MESURES):
@@ -348,8 +349,8 @@ class App(tk.Tk):
                 y_data = self.donnees_accumulees2[j]["y2"]
                 if t_data:
                     self.lignes_plot2[j].set_data(t_data, y_data)
-                    #self.axes2[j].relim()
-                    #self.axes2[j].autoscale_view(scalex=True, scaley=True)
+                    self.axes2[j].relim()
+                    self.axes2[j].autoscale_view(scalex=True, scaley=False)
             self.graph_canvas.draw_idle()
 
         self.after(20, self.traiter_queue)
