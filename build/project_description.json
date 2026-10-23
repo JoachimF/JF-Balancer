@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "JF-Balancer",
-    "project_version":    "835950d-dirty",
+    "project_version":    "ca63e44-dirty",
     "project_path":       "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer",
     "idf_path":           "C:/esp/v5.2.6/esp-idf",
     "build_dir":          "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build",

@@ -21,9 +21,10 @@
 #include "servo.h"
 
 #define MPU6050_INT_PIN 5
+#define MPU60502_INT_PIN 12
 #define LASER_INT_PIN 4
 #define ADDR 0x68
-#define SAMPLES 1024
+#define SAMPLES 128
 #define RPM_ERROR 50
 #define STABILIZATION_TIME 7000
 
@@ -58,16 +59,20 @@ bool rpm_rdy ;
 bool mesure_encours ;
 uint16_t mesure ;
 
-float data_x[2*SAMPLES] ;
-float data_y[2*SAMPLES] ;
+float data_x1[2*SAMPLES] ;
+float data_y1[2*SAMPLES] ;
+float data_x2[2*SAMPLES] ;
+float data_y2[2*SAMPLES] ;
 
-struct data_mpu_t raw_data[SAMPLES] ;
+struct data_mpu_t raw_data1[SAMPLES] ;
+struct data_mpu_t raw_data2[SAMPLES] ;
 data_output_t data_output[5] ;
 
 
 TaskHandle_t read_accel ;
 TaskHandle_t regul_rpm ;
 #define EVT_ACQ_DONE   (1 << 0)
+#define EVT_ACQ_DONE2   (1 << 1)
 
 static EventGroupHandle_t data_rdy;
 
@@ -76,16 +81,19 @@ static volatile uint64_t start_time ;
 static volatile uint32_t freq_laser ;
 static volatile uint64_t period ;
 static volatile uint32_t laser_rpm ;
-mpu6050_dev_t dev = { 0 };
-uint32_t nb_sample = 0 ;
+mpu6050_dev_t dev1 = { 0 };
+mpu6050_dev_t dev2 = { 0 };
+uint32_t nb_sample = 0, nb_sample2 = 0 ;
 bool get_data = 0 ;
 
 
 static const char *TAG = "example";
 
-mpu6050_rotation_t gyro = { 0 };
+//mpu6050_rotation_t gyro = { 0 };
 mpu6050_acceleration_t accel = { 0 };
+mpu6050_acceleration_t accel2 = { 0 };
 uint64_t current_time ;
+uint64_t current_time2 ;
 
 static volatile uint64_t laser_first = 0, laser_last = 0;
 static volatile uint32_t laser_count = 0;
@@ -96,9 +104,17 @@ static void IRAM_ATTR mpu6050_isr(void* arg)
     current_time = esp_timer_get_time() ;
     if(nb_sample == 0 ) {
         start_time = current_time ;
-        laser_count = 0 ;       
+        laser_count = 0 ;    
     }
     xEventGroupSetBitsFromISR(data_rdy, EVT_ACQ_DONE, &woken);
+    if (woken) portYIELD_FROM_ISR();
+}
+
+static void IRAM_ATTR mpu60502_isr(void* arg)
+{
+    BaseType_t woken = pdFALSE;
+    current_time2 = esp_timer_get_time() ;
+    xEventGroupSetBitsFromISR(data_rdy, EVT_ACQ_DONE2, &woken);
     if (woken) portYIELD_FROM_ISR();
 }
 
@@ -108,13 +124,14 @@ static void IRAM_ATTR laser_isr(void *arg)
 {
     uint64_t now = esp_timer_get_time();
     
-    if (laser_count == 0) 
+    if (laser_count == 0)
+    {
         laser_first = now;
+    }
     period = now - laser_last ;
     if(period > 0) freq_laser = 1000000 / period ;
     laser_rpm = freq_laser * 60 ;
     laser_last = now;
-
     laser_count++;
 }
 
@@ -190,6 +207,7 @@ float obtenir_angle_corrige(float angle_brut_deg, float f_ref)
 void declencher_mesure(uint16_t c_rpm) {
     mesure_encours = true ;
     nb_sample = 0 ;
+    nb_sample2 = 0 ;
     laser_count = 0 ;
     ESP_ERROR_CHECK(gpio_intr_enable(LASER_INT_PIN)) ; 
     printf("\n[Console] Lancement de la mesure à %drpm...\n",c_rpm);
@@ -198,21 +216,30 @@ void declencher_mesure(uint16_t c_rpm) {
     while(!rpm_rdy) vTaskDelay(pdMS_TO_TICKS(100)); ;
     printf("\nRPM stabilisés à %ldrpm...\n",laser_rpm);
     // Mettre votre flag de capture à true ou appeler votre routine de mesure ici
-    
 
     ESP_ERROR_CHECK(gpio_intr_enable(MPU6050_INT_PIN)) ;
+    ESP_ERROR_CHECK(gpio_intr_enable(MPU60502_INT_PIN)) ;
     vTaskResume(read_accel);
 }
 
 void envoyer_donnees_mesure(void) {
-    printf("\n[Console] Envoi des donnees de la FFT...\n");
+    printf("\n[Console] Envoi des donnees de l'accelero...\n");
     // Mettre votre boucle de printf pour exporter le spectre de la FFT
-    printf("###accel-%d\n",mesure) ;
+    printf("###ACCEL1-%d\n",mesure) ;
     printf("t;Y\n") ;
     for(int j=0;j<SAMPLES*2;j+=2)
     {
         //printf("%.0f;%f;%f\n",data_x[j],data_x[j+1],data_y[j+1]) ;
-        printf("%.0f;%f\n",data_x[j],data_y[j+1]) ;
+        printf("%.0f;%f\n",data_x1[j],data_y1[j+1]) ;
+    }
+    printf("###\n") ;
+
+    printf("###ACCEL2-%d\n",mesure) ;
+    printf("t;Y\n") ;
+    for(int j=0;j<SAMPLES*2;j+=2)
+    {
+        //printf("%.0f;%f;%f\n",data_x[j],data_x[j+1],data_y[j+1]) ;
+        printf("%.0f;%f\n",data_x2[j],data_y2[j+1]) ;
     }
     printf("###\n") ;
 }
@@ -234,6 +261,7 @@ void lancer_les_mesure(void)
 
     while(mesure_encours) vTaskDelay(pdMS_TO_TICKS(100));
     RPM = 0 ;
+    /*
     printf("###lockin\n");
     printf("Freq;Amplitude;Phase;Deg;Angle\n") ;
     for(int i = 0;i<5;i++)
@@ -241,6 +269,7 @@ void lancer_les_mesure(void)
         printf("%f;%f;%f;%d;%f\n",data_output[i].f_ref,data_output[i].amplitude,data_output[i].phase,data_output[i].deg,data_output[i].angle) ;
     }
     printf("###\n");
+    */
    
 
 }
@@ -295,13 +324,12 @@ static void uart_console_task(void *pvParameters)
 void config_mpu(void)
 {
    
-    ESP_LOGI(TAG, "Configuration du gyro") ;
-    ESP_ERROR_CHECK(mpu6050_init_desc(&dev, ADDR, 0, 21, 22));
-
+    ESP_LOGI(TAG, "Configuration du gyro 1") ;
+    ESP_ERROR_CHECK(mpu6050_init_desc(&dev1, ADDR, 0, 21, 22));
     while (1)
     {
         ESP_LOGI(TAG, "avant i2c_dev_probe") ;
-        esp_err_t res = i2c_dev_probe(&dev.i2c_dev, I2C_DEV_WRITE);
+        esp_err_t res = i2c_dev_probe(&dev1.i2c_dev, I2C_DEV_WRITE);
         ESP_LOGI(TAG, "après i2c_dev_probe") ;
         if (res == ESP_OK)
         {
@@ -313,25 +341,59 @@ void config_mpu(void)
     }
 
     ESP_LOGI(TAG, "Avant mpu6050_init") ;
-    ESP_ERROR_CHECK(mpu6050_init(&dev));
+    ESP_ERROR_CHECK(mpu6050_init(&dev1));
     ESP_LOGI(TAG, "Après mpu6050_init") ;
 
-    ESP_ERROR_CHECK(mpu6050_set_rate(&dev, 0)); // Set sample rate to 1 kHz.
-    ESP_ERROR_CHECK(mpu6050_set_dlpf_mode(&dev, MPU6050_DLPF_3));
-    ESP_ERROR_CHECK(mpu6050_set_full_scale_gyro_range(&dev, MPU6050_GYRO_RANGE_250));
+    ESP_ERROR_CHECK(mpu6050_set_rate(&dev1, 0)); // Set sample rate to 1 kHz.
+    ESP_ERROR_CHECK(mpu6050_set_dlpf_mode(&dev1, MPU6050_DLPF_3));
+    ESP_ERROR_CHECK(mpu6050_set_full_scale_gyro_range(&dev1, MPU6050_GYRO_RANGE_250));
     vTaskDelay(100 / portTICK_PERIOD_MS);
     //ESP_ERROR_CHECK(mpu6050_set_full_scale_accel_range(&dev, MPU6050_ACCEL_RANGE_2)) ;
     vTaskDelay(100 / portTICK_PERIOD_MS);
     ESP_LOGI(TAG, "Avant mpu6050_set_interrupt_mode") ;
-    ESP_ERROR_CHECK(mpu6050_set_interrupt_mode(&dev,MPU6050_INT_LEVEL_HIGH)) ;
-    ESP_ERROR_CHECK(mpu6050_set_interrupt_drive(&dev,MPU6050_INT_PUSH_PULL)) ;
-    ESP_ERROR_CHECK(mpu6050_set_interrupt_latch(&dev,MPU6050_INT_LATCH_PULSE)) ;
-    ESP_ERROR_CHECK(mpu6050_set_interrupt_latch_clear(&dev,1)) ;
-    ESP_ERROR_CHECK(mpu6050_set_int_enabled(&dev,0x01)) ;
+    ESP_ERROR_CHECK(mpu6050_set_interrupt_mode(&dev1,MPU6050_INT_LEVEL_HIGH)) ;
+    ESP_ERROR_CHECK(mpu6050_set_interrupt_drive(&dev1,MPU6050_INT_PUSH_PULL)) ;
+    ESP_ERROR_CHECK(mpu6050_set_interrupt_latch(&dev1,MPU6050_INT_LATCH_PULSE)) ;
+    ESP_ERROR_CHECK(mpu6050_set_interrupt_latch_clear(&dev1,1)) ;
+    ESP_ERROR_CHECK(mpu6050_set_int_enabled(&dev1,0x01)) ;
     ESP_LOGI(TAG, "Après mpu6050_get_interrupt_latch_clear") ;
 
-    //ESP_LOGI(TAG, "Gyro range:  %d", dev.ranges.gyro);
-    //ESP_LOGI(TAG, "Accel range:  %d", dev.ranges.accel);
+#ifdef GYRO2
+    ESP_LOGI(TAG, "Configuration du gyro 2") ;
+    ESP_ERROR_CHECK(mpu6050_init_desc(&dev2, ADDR+1, 0, 21, 22));
+        while (1)
+    {
+        ESP_LOGI(TAG, "avant i2c_dev_probe") ;
+        esp_err_t res = i2c_dev_probe(&dev2.i2c_dev, I2C_DEV_WRITE);
+        ESP_LOGI(TAG, "après i2c_dev_probe") ;
+        if (res == ESP_OK)
+        {
+            ESP_LOGI(TAG, "Found MPU60x0 device");
+            break;
+        }
+        ESP_LOGE(TAG, "MPU60x0 not found");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    ESP_LOGI(TAG, "Avant mpu6050_init") ;
+    ESP_ERROR_CHECK(mpu6050_init(&dev2));
+    ESP_LOGI(TAG, "Après mpu6050_init") ;
+
+    ESP_ERROR_CHECK(mpu6050_set_rate(&dev2, 0)); // Set sample rate to 1 kHz.
+    ESP_ERROR_CHECK(mpu6050_set_dlpf_mode(&dev2, MPU6050_DLPF_3));
+    ESP_ERROR_CHECK(mpu6050_set_full_scale_gyro_range(&dev2, MPU6050_GYRO_RANGE_250));
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    //ESP_ERROR_CHECK(mpu6050_set_full_scale_accel_range(&dev, MPU6050_ACCEL_RANGE_2)) ;
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    ESP_LOGI(TAG, "Avant mpu6050_set_interrupt_mode") ;
+    ESP_ERROR_CHECK(mpu6050_set_interrupt_mode(&dev2,MPU6050_INT_LEVEL_HIGH)) ;
+    ESP_ERROR_CHECK(mpu6050_set_interrupt_drive(&dev2,MPU6050_INT_PUSH_PULL)) ;
+    ESP_ERROR_CHECK(mpu6050_set_interrupt_latch(&dev2,MPU6050_INT_LATCH_PULSE)) ;
+    ESP_ERROR_CHECK(mpu6050_set_interrupt_latch_clear(&dev2,1)) ;
+    ESP_ERROR_CHECK(mpu6050_set_int_enabled(&dev2,0x01)) ;
+    ESP_LOGI(TAG, "Après mpu6050_get_interrupt_latch_clear") ;
+#endif
+
     vTaskDelay(100 / portTICK_PERIOD_MS);
 
 }
@@ -381,6 +443,41 @@ void compute_fft(const struct data_mpu_t *raw, int n)
     printf("fs = %.1f Hz, pic à %.2f Hz\n", fs, max_k * fs / n);
 }
 
+
+void task_lecture_accel2()
+{
+    while(1) {
+        while(nb_sample2 < SAMPLES){
+            EventBits_t bits = xEventGroupWaitBits(
+            data_rdy,
+            EVT_ACQ_DONE2,      // bits attendus
+            pdTRUE,            // effacer les bits après réveil
+            pdFALSE,           // pdTRUE = attendre TOUS les bits, pdFALSE = au moins un
+            portMAX_DELAY);    // timeout
+
+            ESP_ERROR_CHECK(mpu6050_get_acceleration(&dev2, &accel2));
+            raw_data2[nb_sample].gyrox = accel2.x ;
+            raw_data2[nb_sample].gyroy = accel2.y ;
+            
+            //ESP_LOGI(TAG, "Get Gyro") ;
+            /*ESP_ERROR_CHECKmpu6050_get_rotation(&dev, &gyro));
+            raw_data[nb_sample].gyrox = gyro.z ;
+            raw_data[nb_sample].gyroy = gyro.y ; */
+
+
+            raw_data2[nb_sample].time = (float)current_time2 - (float)start_time ; 
+            //get_data = 0 ;
+            nb_sample2++ ;
+            if (bits & EVT_ACQ_DONE2) {
+                // acquisition terminée
+            }
+        }
+    ESP_ERROR_CHECK(gpio_intr_disable(MPU60502_INT_PIN)) ;
+    printf("Fin de l'acquisition MPU2\n") ;
+    vTaskSuspend(NULL) ;
+    }
+}
+
 void task_lecture_donnee()
 {
     while(1) {
@@ -392,56 +489,69 @@ void task_lecture_donnee()
             pdFALSE,           // pdTRUE = attendre TOUS les bits, pdFALSE = au moins un
             portMAX_DELAY);    // timeout
 
-            ESP_ERROR_CHECK(mpu6050_get_acceleration(&dev, &accel));
-            raw_data[nb_sample].gyrox = accel.x ;
-            raw_data[nb_sample].gyroy = accel.y ;
-            
-            //ESP_LOGI(TAG, "Get Gyro") ;
-            /*ESP_ERROR_CHECKmpu6050_get_rotation(&dev, &gyro));
-            raw_data[nb_sample].gyrox = gyro.z ;
-            raw_data[nb_sample].gyroy = gyro.y ; */
-
-
-            raw_data[nb_sample].time = (float)current_time - (float)start_time ; 
+            ESP_ERROR_CHECK(mpu6050_get_acceleration(&dev1, &accel));
+            raw_data1[nb_sample].gyrox = accel.x ;
+            raw_data1[nb_sample].gyroy = accel.y ;
+            raw_data1[nb_sample].time = (float)current_time - (float)start_time ; 
             get_data = 0 ;
+            #ifndef GYRO2
+                nb_sample2 = nb_sample ;
+                raw_data2[nb_sample].time = (float)current_time - (float)start_time ;
+                raw_data2[nb_sample].gyroy = accel.y / 100 ;
+                nb_sample2++ ;
+            #endif
             nb_sample++ ;
             if (bits & EVT_ACQ_DONE) {
                 // acquisition terminée
             }
         }
-        gpio_intr_disable(MPU6050_INT_PIN) ;
+        ESP_ERROR_CHECK(gpio_intr_disable(MPU6050_INT_PIN)) ;
         //gpio_intr_disable(LASER_INT_PIN) ;
 
-        printf("Fin de l'acquisition") ;
+        printf("Fin de l'acquisition MPU1\n") ;
 
+        while(nb_sample2 < SAMPLES) vTaskDelay(80 / portTICK_PERIOD_MS); // Attente de la fin des mesure du MPU2
+
+
+        //Préparation des tableau pour la FFT
+        printf("Préparation de la FFT\n") ;
+        for(int i=0;i<SAMPLES;i++)
+        {
+            data_x1[i*2]     = raw_data1[i].time ;
+            data_y1[i*2]     = raw_data1[i].time ;
+            data_x1[1+2*i]   = raw_data1[i].gyrox ;
+            data_y1[1+2*i]   = raw_data1[i].gyroy ;
+        }
         //Préparation des tableau pour la FFT
         printf("Préparation de la FFT") ;
         for(int i=0;i<SAMPLES;i++)
         {
-            data_x[i*2]     = raw_data[i].time ;
-            data_y[i*2]     = raw_data[i].time ;
-            data_x[1+2*i]   = raw_data[i].gyrox ;
-            data_y[1+2*i]   = raw_data[i].gyroy ;
+            data_x2[i*2]     = raw_data2[i].time ;
+            data_y2[i*2]     = raw_data2[i].time ;
+            data_x2[1+2*i]   = raw_data2[i].gyrox ;
+            data_y2[1+2*i]   = raw_data2[i].gyroy ;
         }
-
         //printf("t;X;Y;t\n") ;
         for(int j=0;j<SAMPLES*2;j+=2)
         {
             //printf("%.0f;%f;%f\n",data_x[j],data_x[j+1],data_y[j+1]) ;
             //printf("%.0f;%f\n",data_x[j],data_y[j+1]) ;
         }
-     
-        compute_fft(raw_data, SAMPLES);
-
+#define FFT 1
+#ifdef FFT    
+        compute_fft(raw_data1, SAMPLES);
+        compute_fft(raw_data2, SAMPLES);
+#endif
         
+        /*********Lockin MPU 1 *********************/
         double f_ref = (laser_count - 1) * 1e6 / (double)(laser_last - laser_first);
         double t_laser0 = ((double)((int64_t)laser_first - (int64_t)start_time)) * 1e-6; // en s, base de temps des échantillons
 
         static float sig[SAMPLES];
         static uint32_t tus[SAMPLES];
         for (int i = 0; i < SAMPLES; i++) {
-            tus[i] = raw_data[i].time;
-            sig[i] = raw_data[i].gyroy;      // ou gyrox, etc.
+            tus[i] = raw_data1[i].time;
+            sig[i] = raw_data1[i].gyroy;      // ou gyrox, etc.
         }
 
         lockin_result_t r = lockin(tus, sig, SAMPLES, f_ref, t_laser0); 
@@ -456,11 +566,38 @@ void task_lecture_donnee()
         mesure++;
 
         //printf("Laser count : %ld | f_ref = %.2f Hz | amplitude = %.4f | phase = %.1f deg (n=%d) | angle : %.1f\n",laser_count,f_ref, r.amp, r.phase_deg, r.n_used,angle_corrige);
-        mesure_encours = false ;
         envoyer_donnees_mesure() ;
-        printf("###lockin%d\n",mesure) ;
+        printf("###LOCKIN1-%d\n",mesure) ;
         printf("%f;%f;%f;%f;%d;%f\n",f_ref,r.amp,amp_corrigee,r.phase_deg,r.n_used,angle_corrige) ;
         printf("###\n") ;
+
+         /*********Lockin MPU 2 *********************/
+        
+        
+        for (int i = 0; i < SAMPLES; i++) {
+            tus[i] = raw_data2[i].time;
+            sig[i] = raw_data2[i].gyroy;      // ou gyrox, etc.
+        }
+
+        r = lockin(tus, sig, SAMPLES, f_ref, t_laser0); 
+        angle_corrige = obtenir_angle_corrige(r.phase_deg,f_ref) ;
+        amp_corrigee = obtenir_amplitude_corrige(r.amp,f_ref) ;
+
+        data_output[mesure].f_ref = f_ref ;
+        data_output[mesure].amplitude = amp_corrigee ; //r.amp ;
+        data_output[mesure].phase = r.phase_deg ;
+        data_output[mesure].deg = r.n_used ; 
+        data_output[mesure].angle = angle_corrige ;
+
+        //printf("Laser count : %ld | f_ref = %.2f Hz | amplitude = %.4f | phase = %.1f deg (n=%d) | angle : %.1f\n",laser_count,f_ref, r.amp, r.phase_deg, r.n_used,angle_corrige);
+        
+        printf("###LOCKIN2-%d\n",mesure) ;
+        printf("%f;%f;%f;%f;%d;%f\n",f_ref,r.amp,amp_corrigee,r.phase_deg,r.n_used,angle_corrige) ;
+        printf("###\n") ;
+
+        mesure_encours = false ;
+        /******* Fin de l'envoi des données *******/
+
         vTaskSuspend(NULL) ;
     }
 
@@ -501,7 +638,7 @@ void task_regul_rpm()
             rpm_rdy = true ;
         else
             rpm_rdy = false ;
-        vTaskDelay(80 / portTICK_PERIOD_MS); 
+        vTaskDelay(50 / portTICK_PERIOD_MS); 
     }
     if((esp_timer_get_time() - laser_last) > 10000000)
         laser_rpm = 0 ;
@@ -534,6 +671,13 @@ void app_main(void)
         .pull_down_en = GPIO_PULLDOWN_DISABLE,      // Désactive la résistance de Pull-down
         .intr_type = GPIO_INTR_POSEDGE             // Déclenchement sur Flanc Descendant (Falling Edge)
     };
+    gpio_config_t io_conf_mpu60502_isr = {
+        .pin_bit_mask = (1ULL << MPU60502_INT_PIN), // Sélection de la broche
+        .mode = GPIO_MODE_INPUT,                   // Mode Entrée
+        .pull_up_en = GPIO_PULLUP_ENABLE,          // Active la résistance de Pull-up interne
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,      // Désactive la résistance de Pull-down
+        .intr_type = GPIO_INTR_POSEDGE             // Déclenchement sur Flanc Descendant (Falling Edge)
+    };
     gpio_config_t io_conf_laser_isr = {
         .pin_bit_mask = (1ULL << LASER_INT_PIN), // Sélection de la broche
         .mode = GPIO_MODE_INPUT,                   // Mode Entrée
@@ -545,6 +689,8 @@ void app_main(void)
     vTaskDelay(100 / portTICK_PERIOD_MS);
     ESP_LOGI(TAG, "Config GPIO 5") ;
     ESP_ERROR_CHECK(gpio_config(&io_conf_mpu6050_isr));
+    ESP_LOGI(TAG, "Config GPIO 12") ;
+    ESP_ERROR_CHECK(gpio_config(&io_conf_mpu60502_isr));
     ESP_LOGI(TAG, "Config GPIO 4") ;
     ESP_ERROR_CHECK(gpio_config(&io_conf_laser_isr));
     // 3. Installer le service d'interruption global du périphérique GPIO
@@ -554,10 +700,13 @@ void app_main(void)
     ESP_ERROR_CHECK(gpio_install_isr_service(0)) ;
     ESP_LOGI(TAG, "Config handler mpu") ;
     ESP_ERROR_CHECK(gpio_isr_handler_add(MPU6050_INT_PIN, mpu6050_isr, (void*) MPU6050_INT_PIN));
+    ESP_ERROR_CHECK(gpio_isr_handler_add(MPU60502_INT_PIN, mpu60502_isr, (void*) MPU60502_INT_PIN));
     ESP_ERROR_CHECK(gpio_intr_enable(MPU6050_INT_PIN)) ;
+    ESP_ERROR_CHECK(gpio_intr_disable(MPU60502_INT_PIN)) ;
+
 
     ESP_LOGI(TAG, "Config handler laser") ;
-    gpio_isr_handler_add(LASER_INT_PIN, laser_isr, (void*) LASER_INT_PIN);
+    ESP_ERROR_CHECK(gpio_isr_handler_add(LASER_INT_PIN, laser_isr, (void*) LASER_INT_PIN)) ;
     ESP_ERROR_CHECK(gpio_intr_enable(LASER_INT_PIN)) ;
     
     //declencher_mesure() ;
