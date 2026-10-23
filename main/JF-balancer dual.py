@@ -206,14 +206,14 @@ class App(tk.Tk):
         self.ax_pol = self.fig.add_subplot(gs[:3, 2], projection="polar")
         self.ax_pol.set_theta_zero_location("N")
         self.ax_pol.set_theta_direction(-1)
-        self.ax_pol.set_ylim(0, 0.3)
+        self.ax_pol.set_ylim(0, 0.1)
         
         self.ax_pol.set_title("Avant")
 
         self.ax_pol2 = self.fig.add_subplot(gs[3:, 2], projection="polar")
         self.ax_pol2.set_theta_zero_location("N")
         self.ax_pol2.set_theta_direction(-1)
-        self.ax_pol2.set_ylim(0, 0.3)
+        self.ax_pol2.set_ylim(0, 0.1)
         self.ax_pol2.set_title("Arrière")
 
         self.graph_canvas = FigureCanvasTkAgg(self.fig, master=self.scrollable_frame)
@@ -235,18 +235,18 @@ class App(tk.Tk):
         tab_scroll.pack(side="right", fill="y")
 
     def lancer(self):
-        self.btn.config(state="disabled")
+        #self.btn.config(state="disabled")
         self.tab.delete(*self.tab.get_children())
 
         self.ax_pol.clear()
         self.ax_pol.set_theta_zero_location("N")
         self.ax_pol.set_theta_direction(-1)
-        self.ax_pol.set_ylim(0, 0.3)
+        self.ax_pol.set_ylim(0, 0.1)
 
         self.ax_pol2.clear()
         self.ax_pol2.set_theta_zero_location("N")
         self.ax_pol2.set_theta_direction(-1)
-        self.ax_pol2.set_ylim(0, 0.3)
+        self.ax_pol2.set_ylim(0, 0.1)
 
         self.donnees_accumulees = {i: {"t1": [], "y1": [], "rpm1": 0.0, "amp1": 0.0, "c_amp1": 0.0, "phase1": 0.0} for i in range(N_MESURES)}
         self.donnees_accumulees2 = {j: {"t2": [], "y2": [], "rpm2": 0.0, "amp2": 0.0, "c_amp2": 0.0, "phase2": 0.0} for j in range(N_MESURES)}
@@ -258,10 +258,10 @@ class App(tk.Tk):
             self.lignes_plot2[i].set_data([], [])
             self.axes[i].relim()
             self.axes[i].autoscale_view(scalex=True, scaley=False)
-            self.axes[i].set_ylim(-0.5, 0.5)
+            self.axes[i].set_ylim(-0.1, 0.1)
             self.axes2[i].relim()
             self.axes2[i].autoscale_view(scalex=True, scaley=False)
-            self.axes2[i].set_ylim(-0.5, 0.5)
+            self.axes2[i].set_ylim(-0.1, 0.1)
 
         self.graph_canvas.draw_idle()
         self.var_etat.set("Attente de la mesure 1")
