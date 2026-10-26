@@ -52,7 +52,7 @@
 #include <freertos/task.h>
 
 // Max 1MHz for esp-idf, but device supports up to 1.7Mhz
-#define I2C_FREQ_HZ (1000000)
+#define I2C_FREQ_HZ (400000)
 
 #define CHECK(x) do { esp_err_t __; if ((__ = x) != ESP_OK) return __; } while (0)
 #define CHECK_ARG(VAL) do { if (!(VAL)) return ESP_ERR_INVALID_ARG; } while (0)
@@ -209,6 +209,8 @@ esp_err_t mpu6050_init_desc(mpu6050_dev_t *dev, uint8_t addr, i2c_port_t port, g
     dev->i2c_dev.addr = addr;
     dev->i2c_dev.cfg.sda_io_num = sda_gpio;
     dev->i2c_dev.cfg.scl_io_num = scl_gpio;
+    dev->i2c_dev.cfg.scl_pullup_en = GPIO_PULLUP_ENABLE ;
+    dev->i2c_dev.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE ;
 #if HELPER_TARGET_IS_ESP32
     dev->i2c_dev.cfg.master.clk_speed = I2C_FREQ_HZ;
 #endif

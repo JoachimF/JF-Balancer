@@ -1938,7 +1938,7 @@ build esp-idf/esptool_py/rebuild_cache: phony esp-idf/esptool_py/CMakeFiles/rebu
 # Custom command for esp-idf\esptool_py\CMakeFiles\bootloader_check_size
 
 build esp-idf/esptool_py/CMakeFiles/bootloader_check_size | ${cmake_ninja_workdir}esp-idf/esptool_py/CMakeFiles/bootloader_check_size: CUSTOM_COMMAND || _project_elf_src bootloader.elf esp-idf/bootloader_support/libbootloader_support.a esp-idf/efuse/libefuse.a esp-idf/esp_bootloader_format/libesp_bootloader_format.a esp-idf/esp_common/libesp_common.a esp-idf/esp_hw_support/libesp_hw_support.a esp-idf/esp_rom/libesp_rom.a esp-idf/esp_system/libesp_system.a esp-idf/hal/libhal.a esp-idf/log/liblog.a esp-idf/main/libmain.a esp-idf/micro-ecc/libmicro-ecc.a esp-idf/soc/libsoc.a esp-idf/spi_flash/libspi_flash.a esp-idf/xtensa/libxtensa.a gen_project_binary
-  COMMAND = C:\Windows\system32\cmd.exe /C "cd /D "C:\Users\Boby\Documents\GitHub\Turbine Balancer ESP32\JF-Balancer\build\bootloader\esp-idf\esptool_py" && C:\Espressif\tools\python\v5.2.6\venv\Scripts\python.exe C:/esp/v5.2.6/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.bin""
+  COMMAND = C:\Windows\system32\cmd.exe /C "cd /D "C:\Users\Boby\Documents\GitHub\Turbine Balancer ESP32\JF-Balancer\build\bootloader\esp-idf\esptool_py" && C:\Espressif\tools\python\v5.2.6\venv\Scripts\python.exe C:/esp/v5.2.6/esp-idf/components/partition_table/check_sizes.py --offset 0xa000 bootloader 0x1000 "C:/Users/Boby/Documents/GitHub/Turbine Balancer ESP32/JF-Balancer/build/bootloader/bootloader.bin""
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:

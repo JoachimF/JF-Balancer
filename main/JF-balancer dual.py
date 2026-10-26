@@ -257,11 +257,11 @@ class App(tk.Tk):
             self.lignes_plot[i].set_data([], [])
             self.lignes_plot2[i].set_data([], [])
             self.axes[i].relim()
-            self.axes[i].autoscale_view(scalex=True, scaley=False)
-            self.axes[i].set_ylim(-0.1, 0.1)
+            self.axes[i].autoscale_view(scalex=True, scaley=True)
+            #self.axes[i].set_ylim(-0.1, 0.1)
             self.axes2[i].relim()
-            self.axes2[i].autoscale_view(scalex=True, scaley=False)
-            self.axes2[i].set_ylim(-0.1, 0.1)
+            self.axes2[i].autoscale_view(scalex=True, scaley=True)
+            #self.axes2[i].set_ylim(-0.1, 0.1)
 
         self.graph_canvas.draw_idle()
         self.var_etat.set("Attente de la mesure 1")
@@ -341,7 +341,7 @@ class App(tk.Tk):
                 if t_data:
                     self.lignes_plot[i].set_data(t_data, y_data)
                     self.axes[i].relim()
-                    self.axes[i].autoscale_view(scalex=True, scaley=False)
+                    self.axes[i].autoscale_view(scalex=True, scaley=True)
             self.graph_canvas.draw_idle()
         if points_recus2:
             for j in range(N_MESURES):
@@ -350,7 +350,7 @@ class App(tk.Tk):
                 if t_data:
                     self.lignes_plot2[j].set_data(t_data, y_data)
                     self.axes2[j].relim()
-                    self.axes2[j].autoscale_view(scalex=True, scaley=False)
+                    self.axes2[j].autoscale_view(scalex=True, scaley=True)
             self.graph_canvas.draw_idle()
 
         self.after(20, self.traiter_queue)
