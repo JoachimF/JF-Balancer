@@ -206,14 +206,14 @@ class App(tk.Tk):
         self.ax_pol = self.fig.add_subplot(gs[:3, 2], projection="polar")
         self.ax_pol.set_theta_zero_location("N")
         self.ax_pol.set_theta_direction(-1)
-        self.ax_pol.set_ylim(0, 0.1)
+        self.ax_pol.set_ylim(0, 0.5)
         
         self.ax_pol.set_title("Avant")
 
         self.ax_pol2 = self.fig.add_subplot(gs[3:, 2], projection="polar")
         self.ax_pol2.set_theta_zero_location("N")
         self.ax_pol2.set_theta_direction(-1)
-        self.ax_pol2.set_ylim(0, 0.1)
+        self.ax_pol2.set_ylim(0, 0.5)
         self.ax_pol2.set_title("Arrière")
 
         self.graph_canvas = FigureCanvasTkAgg(self.fig, master=self.scrollable_frame)
@@ -241,12 +241,12 @@ class App(tk.Tk):
         self.ax_pol.clear()
         self.ax_pol.set_theta_zero_location("N")
         self.ax_pol.set_theta_direction(-1)
-        self.ax_pol.set_ylim(0, 0.1)
+        self.ax_pol.set_ylim(0, 0.3)
 
         self.ax_pol2.clear()
         self.ax_pol2.set_theta_zero_location("N")
         self.ax_pol2.set_theta_direction(-1)
-        self.ax_pol2.set_ylim(0, 0.1)
+        self.ax_pol2.set_ylim(0, 0.3)
 
         self.donnees_accumulees = {i: {"t1": [], "y1": [], "rpm1": 0.0, "amp1": 0.0, "c_amp1": 0.0, "phase1": 0.0} for i in range(N_MESURES)}
         self.donnees_accumulees2 = {j: {"t2": [], "y2": [], "rpm2": 0.0, "amp2": 0.0, "c_amp2": 0.0, "phase2": 0.0} for j in range(N_MESURES)}
@@ -311,7 +311,7 @@ class App(tk.Tk):
                     self.donnees_accumulees2[idx]["c_amp2"] = msg["c_amp2"]
                     self.donnees_accumulees2[idx]["phase2"] = msg["phase2"]
                     self.donnees_accumulees2[idx]["angle2"] = msg["angle2"]
-                    self.tab.insert("", "end", values=(idx + 1, f"{msg['rpm2']:.1f}", f"{msg['amp2']:.4f}", f"{msg['c_amp2']:.4f}", f"{msg['phase2']:.1f}", f"{msg['angle2']:.1f}"))
+                    self.tab.insert("", "end", values=(idx + 11, f"{msg['rpm2']:.1f}", f"{msg['amp2']:.4f}", f"{msg['c_amp2']:.4f}", f"{msg['phase2']:.1f}", f"{msg['angle2']:.1f}"))
                     if msg["c_amp2"] > 0:
                         self.ax_pol2.plot(np.radians(msg["angle2"]), msg["c_amp2"], "o", ms=9, color=COULEURS[idx])
                         self.vector_sum_list2.append(msg["c_amp2"] * np.exp(1j * np.radians(msg["angle2"])))

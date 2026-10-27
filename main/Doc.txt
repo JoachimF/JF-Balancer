@@ -1,0 +1,31 @@
+Maintenant ça fonctionne : V1_0 et V2_0 ont des valeurs cohérentes avec le lockin (0,084 à 77,6° pour le capteur 1). C’était donc bien un problème de variable ou de compilation avant, résolu.
+
+Ce que montre ton résultat
+
+Capteur 1 : amplitude 0,083, phase 77,9°.
+Capteur 2 : amplitude 0,028, phase 342°.
+Les LOCKIN affichent bien la dernière mesure (la moyenne V1_0 est proche de la valeur brute, donc les 3 acquisitions sont cohérentes entre elles).
+
+Vérifie la reproductibilité avant de continuer
+
+C’est la condition pour que la calibration marche. Relance 0 deux ou trois fois et compare V1_0 et V2_0 :
+
+Amplitude : écart inférieur à 5 %.
+Phase : écart de quelques degrés.
+
+Si la phase saute de plusieurs dizaines de degrés d’un run à l’autre, la référence laser n’est pas stable (le premier front laser ne tombe pas toujours au même endroit du rotor si le capteur voit plusieurs fronts par tour, ou s’il y a du bruit). La calibration ne pourra alors pas fonctionner.
+
+Pour la suite
+
+Arrête le moteur (c’est fait par mesure_moyenne), pose 2 g à 0° dans le plan A, puis tape a.
+Retire la masse A, pose 2 g à 0° dans le plan B, tape b.
+Retire la masse B, tape k : tu obtiens les deux masses de correction et le conditionnement.
+Pose-les, tape v.
+
+À surveiller aux étapes a et b
+
+La masse d’essai doit changer nettement la vibration. Compare V1_A à V1_0 : si l’écart est inférieur à environ 30 % de V1_0, prends une masse plus grande, sinon le bruit domine les coefficients α.
+L’angle de la masse (0°) est relatif à ta marque laser. Mesure-le réellement sur le rotor, dans le sens de rotation, et reporte-le dans ANGLE_ESSAI_A / ANGLE_ESSAI_B si ce n’est pas 0°.
+Avec V2_0 à 0,028 contre 0,083 pour V1_0, le plan B vibre moins : si sa masse d’essai est trop petite, a22 sera mal déterminé.
+
+Dis-moi les valeurs affichées après a et b, et le conditionnement du k, et je t’aide à les interpréter.
