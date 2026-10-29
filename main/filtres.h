@@ -1,10 +1,10 @@
 #ifndef _FILTRES_H_
 #define _FILTRES_H_
 
-#define K_DEG_PER_HZ_1   1.978955888f     //2.59459f  
-#define K_APM_PER_HZ_1   0.7372362f //0.007307951f
+#define K_DEG_PER_HZ_1   0 //1.978955888f     //2.59459f  
+//#define K_APM_PER_HZ_1   0.7372362f //0.007307951f
 
-#define K_DEG_PER_HZ_2   1.226708075f
+#define K_DEG_PER_HZ_2   0 //1.226708075f
      //2.59459f  
 //#define K_APM_PER_HZ_2   0.7372362f //0.007307951f
 

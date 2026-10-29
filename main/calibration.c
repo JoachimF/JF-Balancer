@@ -15,6 +15,8 @@ static bool have_0 = false, have_A = false, have_B = false;
 static cplx cal_corrA, cal_corrB;
 static bool have_corr = false;
 
+
+
 // Mesure moyennée à vitesse fixe. Arrête le moteur à la fin.
 static bool mesure_moyenne(uint16_t rpm, cplx *V1, cplx *V2)
 {
@@ -79,8 +81,10 @@ void cal_calcul(void)
 {
     if (!(have_0 && have_A && have_B)) { printf("[CAL] calibration incomplete\n"); return; }
 
-    cplx mA = mass_c(MASSE_ESSAI_A_G, ANGLE_ESSAI_A);
-    cplx mB = mass_c(MASSE_ESSAI_B_G, ANGLE_ESSAI_B);
+    //cplx mA = mass_c(MASSE_ESSAI_A_G, ANGLE_ESSAI_A);
+    //cplx mB = mass_c(MASSE_ESSAI_B_G, ANGLE_ESSAI_B);
+    cplx mA = mass_c(MASSE_ESSAI_A_G * RAYON_A_MM, ANGLE_ESSAI_A);   // g·mm
+    cplx mB = mass_c(MASSE_ESSAI_B_G * RAYON_B_MM, ANGLE_ESSAI_B);   // g·mm
     cplx a11 = (cal_VA[0] - cal_V0[0]) / mA;
     cplx a21 = (cal_VA[1] - cal_V0[1]) / mA;
     cplx a12 = (cal_VB[0] - cal_V0[0]) / mB;
@@ -96,12 +100,24 @@ void cal_calcul(void)
     cal_corrB = -(-a21 * cal_V0[0] + a11 * cal_V0[1]) / det;
     have_corr = true;
 
-    double angA = carg(cal_corrA) * 180.0 / M_PI; if (angA < 0) angA += 360.0;
+    /*double angA = carg(cal_corrA) * 180.0 / M_PI; if (angA < 0) angA += 360.0;
     double angB = carg(cal_corrB) * 180.0 / M_PI; if (angB < 0) angB += 360.0;
     printf("\n===== CORRECTION =====\n");
     printf("Plan A : %.2f g a %.1f deg\n", cabs(cal_corrA), angA);
     printf("Plan B : %.2f g a %.1f deg\n", cabs(cal_corrB), angB);
+    printf("Pose ces masses, puis tape 'v' pour verifier.\n");*/
+
+    double angA = carg(cal_corrA) * 180.0 / M_PI; if (angA < 0) angA += 360.0;
+    double angB = carg(cal_corrB) * 180.0 / M_PI; if (angB < 0) angB += 360.0;
+    printf("\n===== CORRECTION =====\n");
+    printf("Plan A : %.3f g a %.1f deg (diam %.0f mm)  [%.1f g.mm]\n",cabs(cal_corrA) / RAYON_A_MM, angA, DIAM_A_MM, cabs(cal_corrA));
+    printf("Plan B : %.3f g a %.1f deg (diam %.0f mm)  [%.1f g.mm]\n",cabs(cal_corrB) / RAYON_B_MM, angB, DIAM_B_MM, cabs(cal_corrB));
     printf("Pose ces masses, puis tape 'v' pour verifier.\n");
+}
+
+// masse (g) à poser à un diamètre donné pour un balourd en g.mm
+static double masse_pour_diametre(cplx U, double diam_mm) {
+    return cabs(U) / (diam_mm / 2.0);
 }
 
 void cal_verif(void)

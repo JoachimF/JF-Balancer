@@ -199,7 +199,7 @@ void envoyer_donnees_mesure(void) {
 
 void lancer_les_mesure(void)
 {
-    uint16_t rpms[] = {2000,2500,3000,3500,4000} ;
+    uint16_t rpms[] = {4000,4500,5000,5500,6000} ;
     mesure = 0 ;
     printf("###sample=%d###\n",SAMPLES);
     while(mesure < 5)
@@ -276,7 +276,7 @@ void task_lecture_accel1()
             ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
             ESP_ERROR_CHECK(mpu6050_get_acceleration(&dev1, &accel));
 
-            raw_data1[nb_sample].gyroy = accel.y ;
+            raw_data1[nb_sample].gyroy = -accel.y ;
             raw_data1[nb_sample].time = (float)current_time - (float)laser_first ; 
             //printf("%.0f;%f\n",raw_data1[nb_sample].time,raw_data1[nb_sample].gyroy) ;
             #ifndef GYRO2
