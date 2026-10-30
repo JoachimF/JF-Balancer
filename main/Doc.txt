@@ -31,56 +31,12 @@ Avec V2_0 à 0,028 contre 0,083 pour V1_0, le plan B vibre moins : si sa masse d
 Dis-moi les valeurs affichées après a et b, et le conditionnement du k, et je t’aide à les interpréter.
 
 
-###LOCKIN1-1
-50.769054;0.021998;0.014299;-143.407730;511;216.592270
-###
-laser count = 27
-###LOCKIN2-1
-50.769054;0.013800;0.008970;157.046875;493;157.046875
-###
-V1_0 : amp=0.0218 phase=217.3 deg
-V2_0 : amp=0.0147 phase=154.7 deg
-[CAL] Pose 0.5 g a 0 deg dans le plan A, puis tape 'a'
-
-###LOCKIN1-1
-50.670112;0.440667;0.286994;18.906483;493;18.906483
-###
-laser count = 27
-###LOCKIN2-1
-50.670112;0.030798;0.020058;-149.597763;494;210.402237
-###
-V1_A : amp=0.4400 phase=18.6 deg
-V2_A : amp=0.0315 phase=210.8 deg
-[CAL] RETIRE la masse A. Pose 0.5 g a 0 deg dans le plan B, puis tape 'b'
-
-###LOCKIN1-1
-50.783928;0.044738;0.029071;-167.887604;511;192.112396
-###
-laser count = 27
-###LOCKIN2-1
-50.783928;0.304858;0.198101;14.520781;492;14.520781
-###
-V1_B : amp=0.0451 phase=191.5 deg
-V2_B : amp=0.3049 phase=14.1 deg
-[CAL] RETIRE la masse B, puis tape 'k' pour calculer les corrections
-
-V1_0 : amp=0.0163 phase=14.6 deg
-V2_0 : amp=0.0482 phase=177.7 deg
-[CAL] Pose 0.1 g a 0 deg dans le plan A, puis tape 'a'
-V1_A : amp=0.3319 phase=1.0 deg
-V2_A : amp=0.0522 phase=212.5 deg
-[CAL] RETIRE la masse A. Pose 0.1 g a 0 deg dans le plan B, puis tape 'b'
-V1_B : amp=0.0162 phase=46.9 deg
-V2_B : amp=0.1711 phase=21.3 deg
-V1_B : amp=0.0162 phase=46.9 deg
-V2_B : amp=0.1711 phase=21.3 deg
-[CAL] RETIRE la masse B, puis tape 'k' pour calculer les corrections
-[CAL] conditionnement |det|/(|a11||a22|) = 0.996 (ok)
-
-===== CORRECTION =====
-Plan A : 0.01 g a 201.3 deg
-Plan B : 0.02 g a 340.0 deg
-Pose ces masses, puis tape 'v' pour verifier.
-V1 : amp=0.0063 phase=180.2 deg
-V2 : amp=0.0055 phase=356.1 deg
-Residu : capteur1 = 38 %, capteur2 = 11 % de l'initial
+N°	Paramètre	Unité
+$1	Distance entre les deux plans de correction	mm
+$2	Diamètre de correction avant	mm
+$3	Diamètre de correction arrière	mm
+$4	Nombre d'échantillons par mesure	échantillons
+$5	Vitesse de rotation cible	tr/min
+$6	Durée d'acquisition	secondes
+$7	Rayon de pose de la masse d'essai avant	mm
+$8	Rayon de pose de la masse d'essai arrière	mm

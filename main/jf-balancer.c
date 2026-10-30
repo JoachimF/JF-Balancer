@@ -41,10 +41,20 @@
 servo_t esc ;
 uint32_t RPM ;
 uint32_t ppm ;
+_param_t param = {
+    .nb_tour_mesure = 10,
+    .distance_plan_mm = 100,
+    .diametre_A_mm = 70,
+    .diametre_B_mm = 70,
+    .nb_echantillons = 2048,
+    .rpm_mesure = 3000,
+    .rayon_masse_test_A_mm = 35,
+    .rayon_masse_test_B_mm = 35
+};
 
 bool rpm_rdy ;
 static volatile bool mesure_encours = false, mesure_encours2 = false ;
-bool START_MESURE ;
+bool START_MESURE =false ;
 uint16_t mesure ;
 
 float data_x1[2*SAMPLES] ;
@@ -117,11 +127,12 @@ static void IRAM_ATTR mpu60502_isr(void* arg)
     //if (woken) portYIELD_FROM_ISR();
 }
 
-
+static uint64_t ts1[SAMPLES], ts2[SAMPLES];
+static volatile uint32_t nb_isr1, nb_isr2;
 
 static void IRAM_ATTR laser_isr(void *arg)
 {
-    uint64_t now = esp_timer_get_time();
+/*    uint64_t now = esp_timer_get_time();
     
     if (laser_count == 0)
     {
@@ -140,9 +151,60 @@ static void IRAM_ATTR laser_isr(void *arg)
     {
         laser_count++;
         laser_last = now;
+    }*/
+    uint64_t now = esp_timer_get_time();
+    period = now - laser_isr_last ;
+    if(period > 0) freq_laser = 1000000 / period ;
+    laser_rpm = freq_laser * 60 ;
+    laser_isr_last  = now;   
+    
+    if (laser_count == 0)
+    {
+        laser_first = now;
+        nb_sample = nb_sample2 = 0;
+        nb_isr1 = nb_isr2 = 0;
+        mesure_encours = mesure_encours2 = true;      // plus de xEventGroupSetBits
+    }
+    if (mesure_encours && nb_isr1 < SAMPLES) {
+        ts1[nb_isr1++] = esp_timer_get_time();       // date exacte de l'interruption
+        BaseType_t woken = pdFALSE;
+        vTaskNotifyGiveFromISR(read_accel, &woken);
+        portYIELD_FROM_ISR(woken);
+    }
+    if (mesure_encours && nb_isr2 < SAMPLES) {
+        ts2[nb_isr2++] = esp_timer_get_time();       // date exacte de l'interruption
+        BaseType_t woken = pdFALSE;
+        vTaskNotifyGiveFromISR(read_accel2, &woken);
+        portYIELD_FROM_ISR(woken);
     }
 }
 
+void mesure_a_vide(void)
+{
+    printf("\nMesures à vide\n");
+    //vTaskResume(read_accel);
+    //vTaskResume(read_accel2);
+    laser_count = 0 ;
+    uint64_t now = esp_timer_get_time();
+    laser_first = now ;
+    START_MESURE = true ;
+    nb_sample = nb_sample2 = 0;
+    nb_isr1 = nb_isr2 = 0;
+    mesure_encours = mesure_encours2 = true; 
+    //xEventGroupSetBits(acq_evt, EVT_START1);
+    // Mettre votre flag de capture à true ou appeler votre routine de mesure ici
+    //vTaskDelay(pdMS_TO_TICKS(1000)); 
+    while(mesure_encours || mesure_encours2) 
+    {
+        if(nb_sample >= SAMPLES) mesure_encours = false ;
+        if(nb_sample2 >= SAMPLES) mesure_encours2 = false ;
+        printf(".") ;
+        vTaskDelay(pdMS_TO_TICKS(10)) ; 
+    }
+    
+    vTaskDelay(pdMS_TO_TICKS(100)); 
+    envoyer_donnees_mesure() ;
+}
 // Remplacer ces fonctions par votre logique réelle
 int declencher_mesure(uint16_t c_rpm) {
 
@@ -161,11 +223,14 @@ int declencher_mesure(uint16_t c_rpm) {
     //vTaskResume(read_accel2);
     laser_count = 0 ;
     START_MESURE = true ;
+    vTaskDelay(pdMS_TO_TICKS(1000)); 
     // Mettre votre flag de capture à true ou appeler votre routine de mesure ici
     while(mesure_encours || mesure_encours2) 
     {
+        if(nb_sample >= SAMPLES) mesure_encours = false ;
+        if(nb_sample2 >= SAMPLES) mesure_encours2 = false ;
         printf(".") ;
-        vTaskDelay(pdMS_TO_TICKS(500)) ; 
+        vTaskDelay(pdMS_TO_TICKS(10)) ; 
     }
     
     vTaskDelay(pdMS_TO_TICKS(100)); 
@@ -214,6 +279,7 @@ void lancer_les_mesure(void)
 
 void task_lecture_accel2()
 {
+    float accely ;
     gpio_config_t io_conf_mpu60502_isr = {
         .pin_bit_mask = (1ULL << MPU60502_INT_PIN), // Sélection de la broche
         .mode = GPIO_MODE_INPUT,                   // Mode Entrée
@@ -230,31 +296,33 @@ void task_lecture_accel2()
     
     ESP_LOGI(TAG, "Accel 2 TASK OK") ;
     while(1) {
-        xEventGroupWaitBits(acq_evt, EVT_START1, pdTRUE, pdFALSE, portMAX_DELAY);
-        while(nb_sample2 < SAMPLES && mesure < 5){
-            ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-            //printf(".") ;
-            //printf("mesure_encours=%d n=%lu\n", mesure_encours2,n);
-            /*EventBits_t bits = xEventGroupWaitBits(
-            data_rdy,
-            EVT_ACQ_DONE2,      // bits attendus
-            pdTRUE,            // effacer les bits après réveil
-            pdFALSE,           // pdTRUE = attendre TOUS les bits, pdFALSE = au moins un
-            portMAX_DELAY);    // timeout*/
-
+        //xEventGroupWaitBits(acq_evt, EVT_START1, pdTRUE, pdFALSE, portMAX_DELAY);
+        //while(nb_sample2 < SAMPLES){
+           /* ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
             ESP_ERROR_CHECK(mpu6050_get_acceleration(&dev2, &accel2));
-            //raw_data2[nb_sample2].gyrox = accel2.x ;
             raw_data2[nb_sample2].gyroy = accel2.y ;
             raw_data2[nb_sample2].time = (float)current_time2 - (float)laser_first ; 
-            nb_sample2++ ;
-        }
-        mesure_encours2 = false ; 
-        printf("Fin de l'acquisition MPU2\n") ;
+            nb_sample2++ ;*/
+            ulTaskNotifyTake(pdFALSE, portMAX_DELAY);   // pdFALSE : une notification = un échantillon
+            //ESP_ERROR_CHECK(mpu6050_get_acceleration(&dev2, &accel2));
+            if(mesure_encours2)
+            {
+                ESP_ERROR_CHECK(mpu6050_get_acceleration_axis(&dev2,MPU6050_Y_AXIS, &accely)) ;
+                raw_data2[nb_sample2].gyroy = -accely;
+                //raw_data2[nb_sample2].gyroy = -accel2.y;
+                raw_data2[nb_sample2].time = (float)current_time2 - (float)laser_first ;
+                if (++nb_sample2 >= SAMPLES) mesure_encours2 = false;
+            }
+
+        //}   
+        //mesure_encours2 = false ; 
+        //printf("Fin de l'acquisition MPU2\n") ;
     }
 }
 
 void task_lecture_accel1()
 {
+    float accely ;
     gpio_config_t io_conf_mpu6050_isr = {
         .pin_bit_mask = (1ULL << MPU60501_INT_PIN), // Sélection de la broche
         .mode = GPIO_MODE_INPUT,                   // Mode Entrée
@@ -271,9 +339,9 @@ void task_lecture_accel1()
 
     ESP_LOGI(TAG, "Accel 1 TASK OK") ;
     while(1) {
-        xEventGroupWaitBits(acq_evt, EVT_START1, pdTRUE, pdFALSE, portMAX_DELAY);
-        while(nb_sample < SAMPLES && mesure < 5){
-            ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        //xEventGroupWaitBits(acq_evt, EVT_START1, pdTRUE, pdFALSE, portMAX_DELAY);
+        //while(nb_sample < SAMPLES){
+            /*ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
             ESP_ERROR_CHECK(mpu6050_get_acceleration(&dev1, &accel));
 
             raw_data1[nb_sample].gyroy = -accel.y ;
@@ -285,10 +353,21 @@ void task_lecture_accel1()
                 raw_data2[nb_sample].gyroy = accel.y / 10 ;
                 nb_sample2++ ;
             #endif
-            nb_sample++ ;
-        }
-        mesure_encours = false ; 
-        printf("Fin de l'acquisition MPU1\n") ;
+            nb_sample++ ;*/
+            ulTaskNotifyTake(pdFALSE, portMAX_DELAY);   // pdFALSE : une notification = un échantillon
+            //ESP_ERROR_CHECK(mpu6050_get_acceleration(&dev1, &accel));
+            if(mesure_encours)
+            {
+                ESP_ERROR_CHECK(mpu6050_get_acceleration_axis(&dev1,MPU6050_Y_AXIS, &accely)) ;
+                raw_data1[nb_sample].gyroy = -accely;
+                //raw_data1[nb_sample].gyroy = -accel.y;
+                raw_data1[nb_sample].time = (float)current_time - (float)laser_first ;
+                if (++nb_sample >= SAMPLES) mesure_encours = false;
+            }
+            //if (++nb_sample >= SAMPLES) mesure_encours = false;
+        //}
+        //mesure_encours = false ; 
+        //printf("Fin de l'acquisition MPU1\n") ;
     }
 }
 
@@ -326,6 +405,19 @@ void calcul_des_resultats(void)
             //printf("%.0f;%f;%f\n",data_x[j],data_x[j+1],data_y[j+1]) ;
             //printf("%.0f;%f\n",data_x[j],data_y[j+1]) ;
         //}
+        float dtmax = 0;
+        for (int i = 1; i < SAMPLES; i++) {
+            float d = fabsf(raw_data1[i].time - raw_data1[i-1].time - 1000.0f);
+            if (d > dtmax) dtmax = d;
+        }
+        printf("plan A : ecart max a 1 ms = %.0f us\n", dtmax);
+
+        float dtmax2 = 0;
+        for (int i = 1; i < SAMPLES; i++) {
+            float d = fabsf(raw_data2[i].time - raw_data2[i-1].time - 1000.0f);
+            if (d > dtmax2) dtmax2 = d;
+        }
+        printf("plan B : ecart max a 1 ms = %.0f us\n", dtmax2);
 #define FFT 1
 #ifdef FFT    
         //compute_fft(raw_data1, SAMPLES);
@@ -473,6 +565,7 @@ void task(void *ignore)
 
 void app_main(void)
 {
+    
     mesure_encours = false ; 
     mesure_encours2 = false ; 
     START_MESURE = false ;
