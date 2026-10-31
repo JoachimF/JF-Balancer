@@ -3,6 +3,46 @@
 #include "esp_dsp.h"
 #include "filtres.h"
 
+lockin_result_t lockin_angle(const data_mpu_t *data, int n)
+{
+    lockin_result_t r = {0};
+
+    if(n < 2) return r;
+
+    // Calcul de la moyenne : retrait de l'offset DC
+    double mean = 0.0;
+
+    for(int i = 0; i < n; i++)
+        mean += data[i].gyroy;
+
+    mean /= n;
+
+    // Accumulation Lock-in synchronisée sur l'angle
+    double sx = 0.0;
+    double sy = 0.0;
+
+    for(int i = 0; i < n; i++)
+    {
+        double v = data[i].gyroy - mean;
+        double angle = data[i].angle;
+
+        sx += v * cos(angle);
+        sy += v * sin(angle);
+    }
+
+    // Normalisation : restitution de l'amplitude crête
+    sx *= 2.0 / n;
+    sy *= 2.0 / n;
+
+    r.X = sx;
+    r.Y = sy;
+    r.amp = sqrt(sx * sx + sy * sy);
+    r.phase_deg = atan2(sy, sx) * 180.0 / M_PI;
+    r.n_used = n;
+
+    return r;
+}
+
 lockin_result_t lockin(const uint32_t *t_us, const float *x, int n, double f_ref, double t_ref_s)
 {
     lockin_result_t r = {0};

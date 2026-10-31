@@ -15,6 +15,7 @@ extern _param_t param ;
 
 #define UART_CONSOLE_NUM UART_NUM_0
 #define BUF_SIZE (1024)
+#define MAX_TOURS 100
 
 static void traiter_parametre(char *cmd)
 {
@@ -52,7 +53,12 @@ static void traiter_parametre(char *cmd)
     //printf("Paramtere %ld = %u\n",numero,(uint16_t)valeur) ;
     switch (numero)
     {
-        case 1: param.nb_tour_mesure = (uint16_t)valeur; break;
+        case 1: if(valeur > MAX_TOURS){
+                    param.nb_tour_mesure = MAX_TOURS ;
+                }else{
+                    param.nb_tour_mesure = (uint16_t)valeur;
+                }
+                break;
         case 2: param.distance_plan_mm = (uint16_t)valeur; break;
         case 3: param.diametre_A_mm = (uint16_t)valeur; break;
         case 4: param.diametre_B_mm = (uint16_t)valeur; break;

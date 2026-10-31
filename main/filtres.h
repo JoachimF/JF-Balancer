@@ -27,12 +27,13 @@ typedef struct {
 } lockin_result_t;
 
 typedef struct {
-float gyrox ;
+//float gyrox ;
 float gyroy ;
-float time ;
+uint64_t time ;
+float angle ;
 } data_mpu_t ;
 
-
+lockin_result_t lockin_angle(const data_mpu_t *data, int n) ;
 lockin_result_t lockin(const uint32_t *t_us, const float *x, int n, double f_ref, double t_ref_s) ;
 float obtenir_amplitude_corrige1(float amplitude_brute, float f_ref) ;
 float obtenir_angle_corrige1(float angle_brut_deg, float f_ref) ;
