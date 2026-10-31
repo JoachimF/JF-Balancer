@@ -1,6 +1,6 @@
 #include "uart_console.h"
 #include <stdio.h>
-#include <string.h>>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
@@ -23,14 +23,14 @@ static void traiter_parametre(char *cmd)
 
     if (strcmp(cmd, "$$") == 0)
     {
-        printf("$1=%u\r\n", (unsigned int)param.nb_tour_mesure);
-        printf("$2=%u\r\n", (unsigned int)param.distance_plan_mm);
-        printf("$3=%u\r\n", (unsigned int)param.diametre_A_mm);
-        printf("$4=%u\r\n", (unsigned int)param.diametre_B_mm);
-        printf("$5=%u\r\n", (unsigned int)param.nb_echantillons);
-        printf("$6=%u\r\n", (unsigned int)param.rpm_mesure);
-        printf("$7=%u\r\n", (unsigned int)param.rayon_masse_test_A_mm);
-        printf("$8=%u\r\n", (unsigned int)param.rayon_masse_test_B_mm);
+        printf("$1=%u\r\n", param.nb_tour_mesure);
+        printf("$2=%u\r\n", param.distance_plan_mm);
+        printf("$3=%u\r\n", param.diametre_A_mm);
+        printf("$4=%u\r\n", param.diametre_B_mm);
+        printf("$5=%u\r\n", param.nb_echantillons);
+        printf("$6=%u\r\n", param.rpm_mesure);
+        printf("$7=%u\r\n", param.rayon_masse_test_A_mm);
+        printf("$8=%u\r\n", param.rayon_masse_test_B_mm);
 
         fflush(stdout);
         return;
@@ -49,7 +49,7 @@ static void traiter_parametre(char *cmd)
 
     if (valeur < 0 || valeur > UINT16_MAX)
         return;
-    printf("Paramtere %ld = %u\n",numero,(uint16_t)valeur) ;
+    //printf("Paramtere %ld = %u\n",numero,(uint16_t)valeur) ;
     switch (numero)
     {
         case 1: param.nb_tour_mesure = (uint16_t)valeur; break;

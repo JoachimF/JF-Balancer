@@ -563,8 +563,9 @@ class App(tk.Tk):
             # Le protocole envoie chaque réglage sur une ligne terminée par LF.
             # Exemple transmis : b"$1=100.000\\n"
             for commande in commandes:
-                self.source.ser.write((commande + "\n").encode("ascii"))
-                self._journal_serie("TX", commande)
+                self.source.ser.write((commande).encode("ascii"))
+                self.source.ser.write(0x0d)
+                #self._journal_serie("TX", commande)
             self.source.ser.flush()
         except ERR_SERIE as e:
             self._perte_connexion(str(e))

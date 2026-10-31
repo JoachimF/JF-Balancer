@@ -8,7 +8,7 @@
      //2.59459f  
 //#define K_APM_PER_HZ_2   0.7372362f //0.007307951f
 
-#define SAMPLES 128
+#define SAMPLES 1024
 
 typedef struct
 {

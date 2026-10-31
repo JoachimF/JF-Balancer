@@ -6,6 +6,7 @@
 
 #define HIGH_PASS_FILTER MPU6050_DHPF_RESET
 #define DLPF MPU6050_DLPF_0
+#define RATE 7
 #define TAG "HARDWARE"
 #define GYRO2 1
 
@@ -33,7 +34,7 @@ void config_mpu(mpu6050_dev_t *dev1,mpu6050_dev_t *dev2)
     ESP_ERROR_CHECK(mpu6050_init(dev1));
     //ESP_LOGI(TAG, "Après mpu6050_init") ;
 
-    ESP_ERROR_CHECK(mpu6050_set_rate(dev1, 7)); // Set sample rate to 1 kHz.
+    ESP_ERROR_CHECK(mpu6050_set_rate(dev1, RATE)); // Set sample rate to 1 kHz.
     ESP_ERROR_CHECK(mpu6050_set_dlpf_mode(dev1, DLPF));
     ESP_ERROR_CHECK(mpu6050_set_full_scale_gyro_range(dev1, MPU6050_GYRO_RANGE_250));
     ESP_ERROR_CHECK(mpu6050_set_full_scale_accel_range(dev1, MPU6050_ACCEL_RANGE_2)) ;
@@ -68,7 +69,7 @@ void config_mpu(mpu6050_dev_t *dev1,mpu6050_dev_t *dev2)
     //ESP_LOGI(TAG, "Avant mpu6050_init") ;
     ESP_ERROR_CHECK(mpu6050_init(dev2));
     //ESP_LOGI(TAG, "Après mpu6050_init") ;
-    ESP_ERROR_CHECK(mpu6050_set_rate(dev2, 7)); // Set sample rate to 1 kHz.
+    ESP_ERROR_CHECK(mpu6050_set_rate(dev2, RATE)); // Set sample rate to 1 kHz.
     ESP_ERROR_CHECK(mpu6050_set_dlpf_mode(dev2, DLPF));
     ESP_ERROR_CHECK(mpu6050_set_full_scale_gyro_range(dev2, MPU6050_GYRO_RANGE_250)) ;
     ESP_ERROR_CHECK(mpu6050_set_full_scale_accel_range(dev2, MPU6050_ACCEL_RANGE_2)) ;

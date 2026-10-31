@@ -42,12 +42,12 @@ servo_t esc ;
 uint32_t RPM ;
 uint32_t ppm ;
 _param_t param = {
-    .nb_tour_mesure = 10,
+    .nb_tour_mesure = 40,
     .distance_plan_mm = 100,
     .diametre_A_mm = 70,
     .diametre_B_mm = 70,
-    .nb_echantillons = 2048,
-    .rpm_mesure = 3000,
+    .nb_echantillons = 1024,
+    .rpm_mesure = 2500,
     .rayon_masse_test_A_mm = 35,
     .rayon_masse_test_B_mm = 35
 };
@@ -127,21 +127,20 @@ static void IRAM_ATTR mpu60502_isr(void* arg)
     //if (woken) portYIELD_FROM_ISR();
 }
 
-static uint64_t ts1[SAMPLES], ts2[SAMPLES];
-static volatile uint32_t nb_isr1, nb_isr2;
+//static uint64_t ts1[SAMPLES], ts2[SAMPLES];
+//static volatile uint32_t nb_isr1, nb_isr2;
 
 static void IRAM_ATTR laser_isr(void *arg)
 {
-/*    uint64_t now = esp_timer_get_time();
+    uint64_t now = esp_timer_get_time();
     
     if (laser_count == 0)
     {
         laser_first = now;
         nb_sample = 0 ;
         nb_sample2 = 0 ;
-        mesure_encours = true ;
-        mesure_encours2 = true ;
-        xEventGroupSetBits(acq_evt, EVT_START1);
+        mesure_encours = mesure_encours2 = true ;
+        //xEventGroupSetBits(acq_evt, EVT_START1);
     }
     period = now - laser_isr_last ;
     if(period > 0) freq_laser = 1000000 / period ;
@@ -151,32 +150,10 @@ static void IRAM_ATTR laser_isr(void *arg)
     {
         laser_count++;
         laser_last = now;
-    }*/
-    uint64_t now = esp_timer_get_time();
-    period = now - laser_isr_last ;
-    if(period > 0) freq_laser = 1000000 / period ;
-    laser_rpm = freq_laser * 60 ;
-    laser_isr_last  = now;   
-    
-    if (laser_count == 0)
-    {
-        laser_first = now;
-        nb_sample = nb_sample2 = 0;
-        nb_isr1 = nb_isr2 = 0;
-        mesure_encours = mesure_encours2 = true;      // plus de xEventGroupSetBits
+        if(laser_count >= param.nb_tour_mesure+1)
+            mesure_encours = mesure_encours2 = false ;
     }
-    if (mesure_encours && nb_isr1 < SAMPLES) {
-        ts1[nb_isr1++] = esp_timer_get_time();       // date exacte de l'interruption
-        BaseType_t woken = pdFALSE;
-        vTaskNotifyGiveFromISR(read_accel, &woken);
-        portYIELD_FROM_ISR(woken);
-    }
-    if (mesure_encours && nb_isr2 < SAMPLES) {
-        ts2[nb_isr2++] = esp_timer_get_time();       // date exacte de l'interruption
-        BaseType_t woken = pdFALSE;
-        vTaskNotifyGiveFromISR(read_accel2, &woken);
-        portYIELD_FROM_ISR(woken);
-    }
+
 }
 
 void mesure_a_vide(void)
@@ -189,7 +166,7 @@ void mesure_a_vide(void)
     laser_first = now ;
     START_MESURE = true ;
     nb_sample = nb_sample2 = 0;
-    nb_isr1 = nb_isr2 = 0;
+    //nb_isr1 = nb_isr2 = 0;
     mesure_encours = mesure_encours2 = true; 
     //xEventGroupSetBits(acq_evt, EVT_START1);
     // Mettre votre flag de capture à true ou appeler votre routine de mesure ici
@@ -204,8 +181,9 @@ void mesure_a_vide(void)
     
     vTaskDelay(pdMS_TO_TICKS(100)); 
     envoyer_donnees_mesure() ;
+    calcul_des_resultats() ;
 }
-// Remplacer ces fonctions par votre logique réelle
+
 int declencher_mesure(uint16_t c_rpm) {
 
     xTaskNotifyStateClear(read_accel);
@@ -215,6 +193,9 @@ int declencher_mesure(uint16_t c_rpm) {
 
     //ESP_ERROR_CHECK(gpio_intr_enable(LASER_INT_PIN)) ; 
     printf("\n[Console] Lancement de la mesure à %drpm...\n",c_rpm);
+    //ESP_ERROR_CHECK(servo_set_pulse_us(&esc,1000)) ;
+    //RPM = 10 ;
+    //vTaskDelay(pdMS_TO_TICKS(100)); 
     RPM = c_rpm ;
     vTaskDelay(pdMS_TO_TICKS(1000));
     while(!rpm_rdy) vTaskDelay(pdMS_TO_TICKS(100)); ;
@@ -227,8 +208,8 @@ int declencher_mesure(uint16_t c_rpm) {
     // Mettre votre flag de capture à true ou appeler votre routine de mesure ici
     while(mesure_encours || mesure_encours2) 
     {
-        if(nb_sample >= SAMPLES) mesure_encours = false ;
-        if(nb_sample2 >= SAMPLES) mesure_encours2 = false ;
+        //if(nb_sample >= SAMPLES) mesure_encours = false ;
+        //if(nb_sample2 >= SAMPLES) mesure_encours2 = false ;
         printf(".") ;
         vTaskDelay(pdMS_TO_TICKS(10)) ; 
     }
@@ -247,29 +228,31 @@ void envoyer_donnees_mesure(void) {
 
     printf("###ACCEL1-%d\n",mesure+1) ;
     printf("t;Y\n") ;
-    for(int j=0;j<SAMPLES;j++)
+    for(int j=0;j<nb_sample;j++)
     {
         printf("%.0f;%f\n",raw_data1[j].time,raw_data1[j].gyroy) ;
     }
     printf("###\n") ;
+    printf("%ld mesures\n",nb_sample) ;
 
     printf("###ACCEL2-%d\n",mesure+1) ;
     printf("t;Y\n") ;
-    for(int j=0;j<SAMPLES;j++)
+    for(int j=0;j<nb_sample2;j++)
     {
         printf("%.0f;%f\n",raw_data2[j].time,raw_data2[j].gyroy) ;
     }
     printf("###\n") ;
+    printf("%ld mesures\n",nb_sample2) ;
 }
 
 void lancer_les_mesure(void)
 {
-    uint16_t rpms[] = {4000,4500,5000,5500,6000} ;
+    //uint16_t rpms[] = {4000,4000,4000,4000,4000} ;
     mesure = 0 ;
-    printf("###sample=%d###\n",SAMPLES);
+    //printf("###sample=%d###\n",SAMPLES);
     while(mesure < 5)
     {
-        declencher_mesure(rpms[mesure]) ;
+        declencher_mesure(param.rpm_mesure) ;
         vTaskDelay(pdMS_TO_TICKS(100));
     }
     RPM = 0 ;
@@ -383,7 +366,7 @@ void calcul_des_resultats(void)
 
         //Préparation des tableau pour la FFT
         printf("Préparation de la FFT 1\n") ;
-        for(int i=0;i<SAMPLES;i++)
+        for(int i=0;i<nb_sample;i++)
         {
             data_x1[i*2]     = raw_data1[i].time ;
             data_y1[i*2]     = raw_data1[i].time ;
@@ -391,8 +374,8 @@ void calcul_des_resultats(void)
             data_y1[1+2*i]   = raw_data1[i].gyroy ;
         }
         //Préparation des tableau pour la FFT
-        printf("Préparation de la FFT 2") ;
-        for(int i=0;i<SAMPLES;i++)
+        printf("Préparation de la FFT 2\n") ;
+        for(int i=0;i<nb_sample2;i++)
         {
             data_x2[i*2]     = raw_data2[i].time ;
             data_y2[i*2]     = raw_data2[i].time ;
@@ -406,14 +389,14 @@ void calcul_des_resultats(void)
             //printf("%.0f;%f\n",data_x[j],data_y[j+1]) ;
         //}
         float dtmax = 0;
-        for (int i = 1; i < SAMPLES; i++) {
+        for (int i = 1; i < nb_sample; i++) {
             float d = fabsf(raw_data1[i].time - raw_data1[i-1].time - 1000.0f);
             if (d > dtmax) dtmax = d;
         }
         printf("plan A : ecart max a 1 ms = %.0f us\n", dtmax);
 
         float dtmax2 = 0;
-        for (int i = 1; i < SAMPLES; i++) {
+        for (int i = 1; i < nb_sample2; i++) {
             float d = fabsf(raw_data2[i].time - raw_data2[i-1].time - 1000.0f);
             if (d > dtmax2) dtmax2 = d;
         }
@@ -425,7 +408,7 @@ void calcul_des_resultats(void)
 #endif
         
         /*********Lockin MPU 1 *********************/
-        for (int i = 0; i < SAMPLES; i++) {
+        for (int i = 0; i < nb_sample; i++) {
             tus[i] = raw_data1[i].time;
             sig[i] = raw_data1[i].gyroy;      // ou gyrox, etc.
         }
@@ -434,9 +417,9 @@ void calcul_des_resultats(void)
         f_ref = (laser_count - 1) * 1e6 / (double)(laser_last - laser_first);
         t_laser0 = ((double)((int64_t)laser_first - (int64_t)laser_first)) * 1e-6; // en s, base de temps des échantillons
 
-        lockin_result_t r = lockin(tus, sig, SAMPLES, f_ref, t_laser0); 
+        lockin_result_t r = lockin(tus, sig, nb_sample, f_ref, t_laser0); 
         angle_corrige = obtenir_angle_corrige1(r.phase_deg,f_ref) ;
-        amp_corrigee = obtenir_amplitude_corrige1(r.amp,f_ref) ;
+        amp_corrigee = r.amp ; //obtenir_amplitude_corrige1(r.amp,f_ref) ;
 
         // après le lockin MPU1
         last_V1 = r.X + I * r.Y;
@@ -456,7 +439,7 @@ void calcul_des_resultats(void)
         printf("###\n") ;
 
          /*********Lockin MPU 2 *********************/
-        for (int i = 0; i < SAMPLES; i++) {
+        for (int i = 0; i < nb_sample2; i++) {
             tus[i] = raw_data2[i].time;
             sig[i] = raw_data2[i].gyroy;      // ou gyrox, etc.
         }
@@ -464,9 +447,9 @@ void calcul_des_resultats(void)
         printf("laser count = %ld\n",laser_count) ;
         f_ref = (laser_count - 1) * 1e6 / (double)(laser_last - laser_first);
         t_laser0 = ((double)((int64_t)laser_first - (int64_t)laser_first)) * 1e-6; // en s, base de temps des échantillons    
-        r = lockin(tus, sig, SAMPLES, f_ref, t_laser0); 
+        r = lockin(tus, sig, nb_sample2, f_ref, t_laser0); 
         angle_corrige = obtenir_angle_corrige2(r.phase_deg,f_ref) ;
-        amp_corrigee = obtenir_amplitude_corrige2(r.amp,f_ref) ;
+        amp_corrigee = r.amp ; //obtenir_amplitude_corrige2(r.amp,f_ref) ;
 
         last_V2 = r.X + I * r.Y;
 
@@ -509,7 +492,7 @@ void task_regul_rpm()
                 if(rpm_ok < 51)
                     rpm_ok++ ;
             }
-            //ESP_ERROR_CHECK(servo_set_pulse_us(&esc,ppm)) ;
+            //ESP_ERROR_CHECK(servo_set_pulse_us(&esc,ppm)) ;    
         }else{
             ppm = 1000 ;
             rpm_ok = 0 ;
