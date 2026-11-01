@@ -14,7 +14,7 @@ from matplotlib.figure import Figure
 
 N_MESURES = 5
 COULEURS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#9467bd", "#8c564b"]
-BAUDRATE = 115200
+BAUDRATE = 250000
 PORT_PAR_DEFAUT = "COM3"      # présélectionné s'il est présent
 POLAR_RMAX = 0.3          # échelle par défaut (aucune mesure)
 POLAR_MARGE = 1.3         # échelle = 130 % de la valeur max
@@ -408,12 +408,12 @@ class App(tk.Tk):
         self.parametres_carte = [
             ("Nombre de tours de mesure", "tr", "1", "40", "duree"),
             ("Distance entre les deux plans de correction", "mm", "2", "100", "distance"),
-            ("Diamètre de correction – plan avant", "mm", "3", "70", "diam_av"),
-            ("Diamètre de correction – plan arrière", "mm", "4", "70", "diam_ar"),
+            ("Rayon de test avant", "mm", "3", "35", "diam_av"),
+            ("Rayon de test arrière", "mm", "4", "20", "diam_ar"),
             ("Nombre d'échantillons par mesure", "échantillons", "5", "1024", "echantillons"),
             ("Vitesse de rotation cible", "tr/min", "6", "3000", "rpm"),           
-            ("Rayon de pose de la masse d'essai avant", "mm", "7", "35", "rayon_av"),
-            ("Rayon de pose de la masse d'essai arrière", "mm", "8", "35", "rayon_ar"),
+            ("Rayon de correction avant", "mm", "7", "35", "rayon_av"),
+            ("Rayon de correction arrière", "mm", "8", "20", "rayon_ar"),
         ]
         self.vars_parametres = {}
 

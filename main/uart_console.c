@@ -26,12 +26,12 @@ static void traiter_parametre(char *cmd)
     {
         printf("$1=%u\r\n", param.nb_tour_mesure);
         printf("$2=%u\r\n", param.distance_plan_mm);
-        printf("$3=%u\r\n", param.diametre_A_mm);
-        printf("$4=%u\r\n", param.diametre_B_mm);
+        printf("$3=%u\r\n", param.rayon_test_A_mm);
+        printf("$4=%u\r\n", param.rayon_test_B_mm);
         printf("$5=%u\r\n", param.nb_echantillons);
         printf("$6=%u\r\n", param.rpm_mesure);
-        printf("$7=%u\r\n", param.rayon_masse_test_A_mm);
-        printf("$8=%u\r\n", param.rayon_masse_test_B_mm);
+        printf("$7=%u\r\n", param.rayon_correction_A_mm);
+        printf("$8=%u\r\n", param.rayon_correction_B_mm);
 
         fflush(stdout);
         return;
@@ -60,12 +60,12 @@ static void traiter_parametre(char *cmd)
                 }
                 break;
         case 2: param.distance_plan_mm = (uint16_t)valeur; break;
-        case 3: param.diametre_A_mm = (uint16_t)valeur; break;
-        case 4: param.diametre_B_mm = (uint16_t)valeur; break;
+        case 3: param.rayon_test_A_mm = (uint16_t)valeur; break;
+        case 4: param.rayon_test_B_mm = (uint16_t)valeur; break;
         case 5: param.nb_echantillons = (uint16_t)valeur; break;
         case 6: param.rpm_mesure = (uint16_t)valeur; break;
-        case 7: param.rayon_masse_test_A_mm = (uint16_t)valeur; break;
-        case 8: param.rayon_masse_test_B_mm = (uint16_t)valeur; break;
+        case 7: param.rayon_correction_A_mm = (uint16_t)valeur; break;
+        case 8: param.rayon_correction_B_mm = (uint16_t)valeur; break;
 
         default: printf("Paramtere inconnu\n") ;
         break;
@@ -88,7 +88,7 @@ static void traiter_commande_simple(char commande)
 
         case 'c':
         case 'C':
-            RPM = 0;
+            cal_mesure_balourd(&param);
             break;
 
         case '0':
@@ -107,7 +107,7 @@ static void traiter_commande_simple(char commande)
 
         case 'k':
         case 'K':
-            cal_calcul();
+            cal_calcul(&param);
             break;
 
         case 'v':
@@ -117,7 +117,7 @@ static void traiter_commande_simple(char commande)
 
         case 't':
         case 'T':
-            mesure_a_vide();
+            init_calibration(&param);
             break;
 
         default:
@@ -143,7 +143,7 @@ static void traiter_ligne(char *ligne)
 void uart_console_task(void *pvParameters)
 {
     uart_config_t uart_config = {
-        .baud_rate = 115200,
+        .baud_rate = 250000,//115200,
         .data_bits = UART_DATA_8_BITS,
         .parity    = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
@@ -205,6 +205,7 @@ void uart_console_task(void *pvParameters)
                 fflush(stdout);
             }
         }
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 

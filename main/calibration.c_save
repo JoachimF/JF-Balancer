@@ -1,0 +1,442 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <complex.h>
+#include <math.h>
+#include "calibration.h"
+#include "uart_console.h"
+
+extern uint16_t mesure ;
+extern uint32_t RPM ;
+extern int declencher_mesure(uint16_t c_rpm) ;
+
+cplx last_V1, last_V2;            // dernière mesure lockin (X + jY)
+static cplx cal_V0[2], cal_VA[2], cal_VB[2];
+static bool have_0 = false, have_A = false, have_B = false;
+static cplx cal_corrA, cal_corrB;
+static bool have_corr = false;
+
+// Masse et rayon d'essai
+double masse_test_A = 0.05;
+double rayon_test_A = 33.0;
+
+double masse_test_B = 0.05;
+double rayon_test_B = 20.0;
+
+// Rayon de correction
+uint16_t rayon_correction_A = 33;
+uint16_t rayon_correction_B = 20;
+
+calibration_t calibration;
+
+// Conversion amplitude / phase vers complexe
+complex_t polar_to_complex(lockin_t v)
+{
+    double p = v.phase * M_PI / 180.0;
+
+    complex_t z = {
+        .re = v.amp * cos(p),
+        .im = v.amp * sin(p)
+    };
+
+    return z;
+}
+
+
+// Opérations complexes
+complex_t c_add(complex_t a, complex_t b)
+{
+    return (complex_t){a.re+b.re, a.im+b.im};
+}
+
+complex_t c_sub(complex_t a, complex_t b)
+{
+    return (complex_t){a.re-b.re, a.im-b.im};
+}
+
+complex_t c_mul(complex_t a, complex_t b)
+{
+    return (complex_t){
+        a.re*b.re - a.im*b.im,
+        a.re*b.im + a.im*b.re
+    };
+}
+
+complex_t c_div(complex_t a, complex_t b)
+{
+    double d = b.re*b.re + b.im*b.im;
+
+    return (complex_t){
+        (a.re*b.re + a.im*b.im)/d,
+        (a.im*b.re - a.re*b.im)/d
+    };
+}
+
+complex_t c_scale(complex_t a, double k)
+{
+    return (complex_t){a.re*k, a.im*k};
+}
+
+double c_abs(complex_t a)
+{
+    return hypot(a.re, a.im);
+}
+
+double c_angle(complex_t a)
+{
+    double angle = atan2(a.im, a.re) * 180.0 / M_PI;
+
+    if(angle < 0)
+        angle += 360.0;
+
+    return angle;
+}
+
+int calcul_corrections(lockin_t V1_0a, lockin_t V2_0a,lockin_t V1_0b, lockin_t V2_0b,lockin_t V1_A, lockin_t V2_A,lockin_t V1_B, lockin_t V2_B,
+                        double masse_test_A,double rayon_test_A,double masse_test_B,double rayon_test_B,uint16_t rayon_correction_A,uint16_t rayon_correction_B,
+                        correction_t *corA,correction_t *corB)
+{
+    // 1. Référence initiale : moyenne vectorielle
+    complex_t V1_0 = c_scale(
+        c_add(polar_to_complex(V1_0a),
+              polar_to_complex(V1_0b)), 0.5);
+
+    complex_t V2_0 = c_scale(
+        c_add(polar_to_complex(V2_0a),
+              polar_to_complex(V2_0b)), 0.5);
+
+    // 2. Mesures après masse A et masse B
+    complex_t A1 = polar_to_complex(V1_A);
+    complex_t A2 = polar_to_complex(V2_A);
+
+    complex_t B1 = polar_to_complex(V1_B);
+    complex_t B2 = polar_to_complex(V2_B);
+
+    // 3. Balourds d'essai en g.mm
+    double UA = masse_test_A * rayon_test_A;
+    double UB = masse_test_B * rayon_test_B;
+
+    if(UA <= 0 || UB <= 0 ||
+       rayon_correction_A <= 0 ||
+       rayon_correction_B <= 0)
+        return -1;
+
+    // 4. Matrice d'influence
+    complex_t HAA = c_scale(c_sub(A1, V1_0), 1.0/UA);
+    complex_t HBA = c_scale(c_sub(A2, V2_0), 1.0/UA);
+
+    complex_t HAB = c_scale(c_sub(B1, V1_0), 1.0/UB);
+    complex_t HBB = c_scale(c_sub(B2, V2_0), 1.0/UB);
+
+    // 5. Déterminant de la matrice
+    complex_t det = c_sub(
+        c_mul(HAA, HBB),
+        c_mul(HAB, HBA)
+    );
+
+    if(c_abs(det) < 1e-12)
+        return -2;
+
+    // 6. Résolution H * U = -V0
+    complex_t moinsV1 = c_scale(V1_0, -1.0);
+    complex_t moinsV2 = c_scale(V2_0, -1.0);
+
+    complex_t UA_cor = c_div(
+        c_sub(c_mul(moinsV1, HBB),
+              c_mul(HAB, moinsV2)),
+        det
+    );
+
+    complex_t UB_cor = c_div(
+        c_sub(c_mul(HAA, moinsV2),
+              c_mul(HBA, moinsV1)),
+        det
+    );
+
+    // 7. Conversion en masse et angle
+    corA->balourd = c_abs(UA_cor);
+    corA->masse = corA->balourd / (double)rayon_correction_A;
+    corA->angle = c_angle(UA_cor);
+
+    corB->balourd = c_abs(UB_cor);
+    corB->masse = corB->balourd / (double)rayon_correction_B;
+    corB->angle = c_angle(UB_cor);
+
+    return 0;
+}
+
+void corrige(_param_t *param) //Donne la correction a apporter au plan
+{
+    correction_t corA, corB;
+
+int result = calcul_corrections(
+        // Référence initiale (répétée faute de seconde mesure)
+        (lockin_t){0.0344, 268.2},  // V1_0a
+        (lockin_t){0.0083, 218.3},  // V2_0a
+        (lockin_t){0.0344, 268.2},  // V1_0b
+        (lockin_t){0.0083, 218.3},  // V2_0b
+
+        // Masse d'essai dans le plan A
+        (lockin_t){0.0702, 7.6},    // V1_A
+        (lockin_t){0.0082, 204.2}, // V2_A
+
+        // Masse d'essai dans le plan B
+        (lockin_t){0.0370, 273.5}, // V1_B
+        (lockin_t){0.0625, 24.5},  // V2_B
+
+        // Masses et rayons d'essai
+        0.05, param->rayon_test_A_mm,
+        0.05, param->rayon_test_B_mm,
+
+        // Rayons de correction
+        param->rayon_correction_A_mm, param->rayon_correction_B_mm,
+
+        &corA, &corB
+    );
+
+    if(result == 0)
+    {
+        printf("\n===== CORRECTION =====\n");
+
+        printf("Plan A : %.3f g a %.1f deg\n",
+            corA.masse, corA.angle);
+
+        printf("Plan B : %.3f g a %.1f deg\n",
+            corB.masse, corB.angle);
+    }
+}
+
+void init_calibration(_param_t *param)
+{
+    calibrer_balancier(
+        (lockin_t){0.0344, 268.2},  // V1_0b
+        (lockin_t){0.0083, 218.3},  // V2_0b
+        (lockin_t){0.0344, 268.2},  // V1_0b
+        (lockin_t){0.0083, 218.3},  // V2_0b
+
+        // Masse d'essai dans le plan A
+        (lockin_t){0.0702, 7.6},    // V1_A
+        (lockin_t){0.0082, 204.2}, // V2_A
+
+        // Masse d'essai dans le plan B
+        (lockin_t){0.0370, 273.5}, // V1_B
+        (lockin_t){0.0625, 24.5},  // V2_B)
+                // Masses et rayons d'essai
+        0.05, param->rayon_correction_A_mm,
+        0.05, param->rayon_correction_B_mm,
+        &calibration) ;
+}
+
+int calibrer_balancier(lockin_t V1_0a, lockin_t V2_0a,lockin_t V1_0b, lockin_t V2_0b,lockin_t V1_A, lockin_t V2_A,lockin_t V1_B, lockin_t V2_B,
+                        double masse_test_A,uint16_t rayon_test_A,double masse_test_B,uint16_t rayon_test_B,calibration_t *cal)
+{
+    if(cal == NULL)
+        return -1;
+
+    // Référence initiale : moyenne vectorielle
+    complex_t V1_0 = c_scale(
+        c_add(polar_to_complex(V1_0a),
+              polar_to_complex(V1_0b)), 0.5);
+
+    complex_t V2_0 = c_scale(
+        c_add(polar_to_complex(V2_0a),
+              polar_to_complex(V2_0b)), 0.5);
+
+    // Mesures avec masses d'essai
+    complex_t A1 = polar_to_complex(V1_A);
+    complex_t A2 = polar_to_complex(V2_A);
+
+    complex_t B1 = polar_to_complex(V1_B);
+    complex_t B2 = polar_to_complex(V2_B);
+
+    double UA = masse_test_A * (double)rayon_test_A;
+    double UB = masse_test_B * (double)rayon_test_B;
+
+    if(UA <= 0 || UB <= 0)
+        return -2;
+
+    // Matrice d'influence
+    cal->HAA = c_scale(c_sub(A1, V1_0), 1.0 / UA);
+    cal->HBA = c_scale(c_sub(A2, V2_0), 1.0 / UA);
+
+    cal->HAB = c_scale(c_sub(B1, V1_0), 1.0 / UB);
+    cal->HBB = c_scale(c_sub(B2, V2_0), 1.0 / UB);
+
+    // Déterminant
+    cal->det = c_sub(
+        c_mul(cal->HAA, cal->HBB),
+        c_mul(cal->HAB, cal->HBA)
+    );
+
+    double denom = c_abs(cal->HAA) * c_abs(cal->HBB);
+
+    if(c_abs(cal->det) < 1e-12 || denom < 1e-12)
+        return -3;
+
+    cal->conditionnement = c_abs(cal->det) / denom;
+
+    printf("[CAL] Conditionnement = %.3f\n",
+           cal->conditionnement);
+
+    return 0;
+}
+
+int calcul_balourd(const calibration_t *cal,lockin_t V1,lockin_t V2,uint16_t rayon_correction_A,uint16_t rayon_correction_B,balourd_t *balA,balourd_t *balB)
+{
+    if(cal == NULL || balA == NULL || balB == NULL)
+        return -1;
+
+    if(rayon_correction_A <= 0 || rayon_correction_B <= 0)
+        return -2;
+
+    // Réponse mesurée des deux capteurs
+    complex_t v1 = polar_to_complex(V1);
+    complex_t v2 = polar_to_complex(V2);
+
+    // Inversion de H : U = H^-1 * V
+    complex_t U_A = c_div(
+        c_sub(
+            c_mul(v1, cal->HBB),
+            c_mul(cal->HAB, v2)
+        ),
+        cal->det
+    );
+
+    complex_t U_B = c_div(
+        c_sub(
+            c_mul(cal->HAA, v2),
+            c_mul(cal->HBA, v1)
+        ),
+        cal->det
+    );
+
+    // Balourd réel estimé
+    balA->balourd = c_abs(U_A);
+    balA->angle = c_angle(U_A);
+
+    balB->balourd = c_abs(U_B);
+    balB->angle = c_angle(U_B);
+
+    // Masse corrective à ajouter : vecteur opposé
+    balA->masse = balA->balourd / (double)rayon_correction_A;
+    balA->angle_cor = fmod(balA->angle + 180.0, 360.0);
+
+    balB->masse = balB->balourd / (double)rayon_correction_B;
+    balB->angle_cor = fmod(balB->angle + 180.0, 360.0);
+
+    return 0;
+}
+
+// Mesure moyennée à vitesse fixe. Arrête le moteur à la fin.
+static bool mesure_moyenne(uint16_t rpm, cplx *V1, cplx *V2)
+{
+    cplx s1 = 0, s2 = 0;
+    int ok = 0, essais = 0;
+    while (ok < CAL_NB_MOYENNES && essais < CAL_NB_MOYENNES * 3) {
+        essais++;
+        mesure = 0;                       // évite de sortir de data_output[5]
+        if (declencher_mesure(rpm)) {
+            s1 += last_V1;
+            s2 += last_V2;
+            ok++;
+        }
+    }
+    RPM = 0;                              // moteur à l'arrêt pour pouvoir poser les masses
+    if (ok < CAL_NB_MOYENNES) return false;
+    *V1 = s1 / ok;
+    *V2 = s2 / ok;
+    return true;
+}
+
+static void print_v(const char *nom, cplx V)
+{
+    double ang = carg(V) * 180.0 / M_PI;
+    if (ang < 0) ang += 360.0;
+    printf("%s : amp=%.4f phase=%.1f deg\n", nom, cabs(V), ang);
+}
+
+static cplx mass_c(double g, double deg) { return g * cexp(I * deg * M_PI / 180.0); }
+
+void cal_run0(void)
+{
+    printf("\n[CAL] Run 0 : rotor SANS masse d'essai\n");
+    if (!mesure_moyenne(CAL_RPM, &cal_V0[0], &cal_V0[1])) { printf("[CAL] echec\n"); return; }
+    have_0 = true; have_A = have_B = have_corr = false;
+    print_v("V1_0", cal_V0[0]); print_v("V2_0", cal_V0[1]);
+    printf("[CAL] Pose %.2f g a %.0f deg dans le plan A, puis tape 'a'\n", MASSE_ESSAI_A_G, ANGLE_ESSAI_A);
+}
+
+void cal_runA(void)
+{
+    if (!have_0) { printf("[CAL] fais d'abord le run 0 ('0')\n"); return; }
+    printf("\n[CAL] Run A : masse d'essai dans le plan A\n");
+    if (!mesure_moyenne(CAL_RPM, &cal_VA[0], &cal_VA[1])) { printf("[CAL] echec\n"); return; }
+    have_A = true;
+    print_v("V1_A", cal_VA[0]); print_v("V2_A", cal_VA[1]);
+    printf("[CAL] RETIRE la masse A. Pose %.2f g a %.0f deg dans le plan B, puis tape 'b'\n",
+           MASSE_ESSAI_B_G, ANGLE_ESSAI_B);
+}
+
+void cal_runB(void)
+{
+    if (!have_A) { printf("[CAL] fais d'abord le run A ('a')\n"); return; }
+    printf("\n[CAL] Run B : masse d'essai dans le plan B\n");
+    if (!mesure_moyenne(CAL_RPM, &cal_VB[0], &cal_VB[1])) { printf("[CAL] echec\n"); return; }
+    have_B = true;
+    print_v("V1_B", cal_VB[0]); print_v("V2_B", cal_VB[1]);
+    printf("[CAL] RETIRE la masse B, puis tape 'k' pour calculer les corrections\n");
+}
+
+void cal_calcul(void)
+{
+    if (!(have_0 && have_A && have_B)) { printf("[CAL] calibration incomplete\n"); return; }
+
+    //cplx mA = mass_c(MASSE_ESSAI_A_G, ANGLE_ESSAI_A);
+    //cplx mB = mass_c(MASSE_ESSAI_B_G, ANGLE_ESSAI_B);
+    cplx mA = mass_c(MASSE_ESSAI_A_G * RAYON_A_MM, ANGLE_ESSAI_A);   // g·mm
+    cplx mB = mass_c(MASSE_ESSAI_B_G * RAYON_B_MM, ANGLE_ESSAI_B);   // g·mm
+    cplx a11 = (cal_VA[0] - cal_V0[0]) / mA;
+    cplx a21 = (cal_VA[1] - cal_V0[1]) / mA;
+    cplx a12 = (cal_VB[0] - cal_V0[0]) / mB;
+    cplx a22 = (cal_VB[1] - cal_V0[1]) / mB;
+
+    cplx det = a11 * a22 - a12 * a21;
+    double cond = cabs(det) / (cabs(a11) * cabs(a22) + 1e-12);
+    printf("[CAL] conditionnement |det|/(|a11||a22|) = %.3f %s\n", cond,
+           cond < 0.2 ? "(MAUVAIS : plans mal separes)" : "(ok)");
+    if (cabs(det) < 1e-12) { printf("[CAL] matrice singuliere\n"); return; }
+
+    cal_corrA = -( a22 * cal_V0[0] - a12 * cal_V0[1]) / det;
+    cal_corrB = -(-a21 * cal_V0[0] + a11 * cal_V0[1]) / det;
+    have_corr = true;
+
+    /*double angA = carg(cal_corrA) * 180.0 / M_PI; if (angA < 0) angA += 360.0;
+    double angB = carg(cal_corrB) * 180.0 / M_PI; if (angB < 0) angB += 360.0;
+    printf("\n===== CORRECTION =====\n");
+    printf("Plan A : %.2f g a %.1f deg\n", cabs(cal_corrA), angA);
+    printf("Plan B : %.2f g a %.1f deg\n", cabs(cal_corrB), angB);
+    printf("Pose ces masses, puis tape 'v' pour verifier.\n");*/
+
+    double angA = carg(cal_corrA) * 180.0 / M_PI; if (angA < 0) angA += 360.0;
+    double angB = carg(cal_corrB) * 180.0 / M_PI; if (angB < 0) angB += 360.0;
+    printf("\n===== CORRECTION =====\n");
+    printf("Plan A : %.3f g a %.1f deg (diam %.0f mm)  [%.1f g.mm]\n",cabs(cal_corrA) / RAYON_A_MM, angA, DIAM_A_MM, cabs(cal_corrA));
+    printf("Plan B : %.3f g a %.1f deg (diam %.0f mm)  [%.1f g.mm]\n",cabs(cal_corrB) / RAYON_B_MM, angB, DIAM_B_MM, cabs(cal_corrB));
+    printf("Pose ces masses, puis tape 'v' pour verifier.\n");
+}
+
+// masse (g) à poser à un diamètre donné pour un balourd en g.mm
+static double masse_pour_diametre(cplx U, double diam_mm) {
+    return cabs(U) / (diam_mm / 2.0);
+}
+
+void cal_verif(void)
+{
+    if (!have_0) { printf("[CAL] pas de reference (run 0)\n"); return; }
+    cplx V1, V2;
+    printf("\n[CAL] Verification apres correction\n");
+    if (!mesure_moyenne(CAL_RPM, &V1, &V2)) { printf("[CAL] echec\n"); return; }
+    print_v("V1", V1); print_v("V2", V2);
+    printf("Residu : capteur1 = %.0f %%, capteur2 = %.0f %% de l'initial\n",
+           100.0 * cabs(V1) / cabs(cal_V0[0]), 100.0 * cabs(V2) / cabs(cal_V0[1]));
+}

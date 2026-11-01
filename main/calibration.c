@@ -2,20 +2,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <complex.h>
-#include "math.h"
+#include <math.h>
 #include "calibration.h"
+#include "uart_console.h"
 
-extern uint16_t mesure ;
-extern uint32_t RPM ;
-extern int declencher_mesure(uint16_t c_rpm) ;
+extern uint16_t mesure;
+extern uint32_t RPM;
+extern bool declencher_mesure(uint16_t c_rpm);
 
-cplx last_V1, last_V2;            // dernière mesure lockin (X + jY)
-static cplx cal_V0[2], cal_VA[2], cal_VB[2];
+calibration_data_t calibration = {0};
+
+cplx last_V1, last_V2;       // dernière mesure lockin (X + jY), écrite par calcul_des_resultats
 static bool have_0 = false, have_A = false, have_B = false;
-static cplx cal_corrA, cal_corrB;
-static bool have_corr = false;
 
+/* ------------------------------------------------------------------ outils */
+static cplx polaire(double amp, double deg) { return amp * cexp(I * deg * M_PI / 180.0); }
+static cplx mass_c(double g, double deg)    { return polaire(g, deg); }
 
+static double angle360(cplx z)
+{
+    double a = carg(z) * 180.0 / M_PI;
+    return a < 0 ? a + 360.0 : a;
+}
+
+static void print_v(const char *nom, cplx V)
+{
+    printf("%s : amp=%.5f phase=%.2f deg\n", nom, cabs(V), angle360(V));
+}
 
 // Mesure moyennée à vitesse fixe. Arrête le moteur à la fin.
 static bool mesure_moyenne(uint16_t rpm, cplx *V1, cplx *V2)
@@ -31,39 +44,113 @@ static bool mesure_moyenne(uint16_t rpm, cplx *V1, cplx *V2)
             ok++;
         }
     }
-    RPM = 0;                              // moteur à l'arrêt pour pouvoir poser les masses
+    RPM = 0;                              // moteur à l'arrêt
     if (ok < CAL_NB_MOYENNES) return false;
     *V1 = s1 / ok;
     *V2 = s2 / ok;
     return true;
 }
 
-static void print_v(const char *nom, cplx V)
+/* ------------------------------------------------------- matrice d'influence */
+// Calcule H à partir de V0, VA, VB et des masses d'essai (en g.mm).
+static int cal_matrice(const _param_t *param)
 {
-    double ang = carg(V) * 180.0 / M_PI;
-    if (ang < 0) ang += 360.0;
-    printf("%s : amp=%.4f phase=%.1f deg\n", nom, cabs(V), ang);
+    cplx mA = mass_c(MASSE_ESSAI_A_G * param->rayon_test_A_mm, ANGLE_ESSAI_A);   // g.mm
+    cplx mB = mass_c(MASSE_ESSAI_B_G * param->rayon_test_B_mm, ANGLE_ESSAI_B);   // g.mm
+
+    calibration.a11 = (calibration.cal_VA[0] - calibration.cal_V0[0]) / mA;
+    calibration.a21 = (calibration.cal_VA[1] - calibration.cal_V0[1]) / mA;
+    calibration.a12 = (calibration.cal_VB[0] - calibration.cal_V0[0]) / mB;
+    calibration.a22 = (calibration.cal_VB[1] - calibration.cal_V0[1]) / mB;
+
+    calibration.det = calibration.a11 * calibration.a22 - calibration.a12 * calibration.a21;
+    calibration.conditionnement = cabs(calibration.det) /
+                                  (cabs(calibration.a11) * cabs(calibration.a22) + 1e-12);
+
+    calibration.calibre = isfinite(creal(calibration.det)) && isfinite(cimag(calibration.det))
+                          && cabs(calibration.det) >= 1e-12;
+
+    if (!calibration.calibre) { printf("[CAL] matrice singuliere ou valeurs invalides\n"); return -1; }
+    printf("[CAL] conditionnement |det|/(|a11||a22|) = %.4f %s\n", calibration.conditionnement,
+           calibration.conditionnement < 0.2 ? "(MAUVAIS : plans mal separes)" : "(ok)");
+    return 0;
 }
 
-static cplx mass_c(double g, double deg) { return g * cexp(I * deg * M_PI / 180.0); }
+/* --------------------------------------------------------- calcul du balourd */
+static void remplir(balourd_t *b, cplx U, double rayon_mm)
+{
+    b->balourd   = cabs(U);                       // g.mm
+    b->angle     = angle360(U);                   // côté lourd
+    b->masse     = b->balourd / rayon_mm;         // g au rayon de correction
+    b->angle_cor = fmod(b->angle + 180.0, 360.0); // à l'opposé
+}
 
+// V = H.U  ->  U = H^-1.V
+int cal_calcul_balourd(cplx V1, cplx V2, const _param_t *param, balourd_t *balA, balourd_t *balB)
+{
+    if (!calibration.calibre) return -1;
+    if (balA == NULL || balB == NULL) return -2;
+
+    double rA = param->rayon_correction_A_mm;
+    double rB = param->rayon_correction_B_mm;
+    if (rA <= 0 || rB <= 0) return -3;
+
+    cplx UA = ( calibration.a22 * V1 - calibration.a12 * V2) / calibration.det;
+    cplx UB = (-calibration.a21 * V1 + calibration.a11 * V2) / calibration.det;
+
+    remplir(balA, UA, rA);
+    remplir(balB, UB, rB);
+    return 0;
+}
+
+static void afficher_balourd(const char *plan, const balourd_t *b, double rayon_mm)
+{
+    printf("Plan %s : balourd %.4f g.mm a %.1f deg\n", plan, b->balourd, b->angle);
+    printf("          -> AJOUTER %.4f g a %.1f deg (rayon %.0f mm)\n", b->masse, b->angle_cor, rayon_mm);
+    printf("          ou RETIRER %.4f g a %.1f deg\n", b->masse, b->angle);
+}
+
+void cal_mesure_balourd(const _param_t *param)
+{
+    if (!calibration.calibre) {
+        printf("[BAL] pas de calibration valide (lance 0, a, b puis k, ou cal_charger)\n");
+        return;
+    }
+    cplx V1, V2;
+    printf("\n[BAL] Mesure du balourd a %d tr/min\n", CAL_RPM);
+    if (!mesure_moyenne(CAL_RPM, &V1, &V2)) { printf("[BAL] echec de la mesure\n"); return; }
+    print_v("V1", V1);
+    print_v("V2", V2);
+
+    balourd_t bA, bB;
+    int r = cal_calcul_balourd(V1, V2, param, &bA, &bB);
+    if (r != 0) { printf("[BAL] erreur de calcul (%d)\n", r); return; }
+
+    printf("\n===== BALOURD =====\n");
+    afficher_balourd("A", &bA, param->rayon_correction_A_mm);
+    afficher_balourd("B", &bB, param->rayon_correction_B_mm);
+}
+
+/* ------------------------------------------------------------- calibration */
 void cal_run0(void)
 {
     printf("\n[CAL] Run 0 : rotor SANS masse d'essai\n");
-    if (!mesure_moyenne(CAL_RPM, &cal_V0[0], &cal_V0[1])) { printf("[CAL] echec\n"); return; }
-    have_0 = true; have_A = have_B = have_corr = false;
-    print_v("V1_0", cal_V0[0]); print_v("V2_0", cal_V0[1]);
-    printf("[CAL] Pose %.1f g a %.0f deg dans le plan A, puis tape 'a'\n", MASSE_ESSAI_A_G, ANGLE_ESSAI_A);
+    if (!mesure_moyenne(CAL_RPM, &calibration.cal_V0[0], &calibration.cal_V0[1])) { printf("[CAL] echec\n"); return; }
+    have_0 = true; have_A = have_B = false;
+    calibration.calibre = false;                      // l'ancienne matrice n'est plus valide
+    print_v("V1_0", calibration.cal_V0[0]); print_v("V2_0", calibration.cal_V0[1]);
+    printf("[CAL] Pose %.3f g a %.0f deg dans le plan A, puis tape 'a'\n", MASSE_ESSAI_A_G, ANGLE_ESSAI_A);
 }
 
 void cal_runA(void)
 {
     if (!have_0) { printf("[CAL] fais d'abord le run 0 ('0')\n"); return; }
     printf("\n[CAL] Run A : masse d'essai dans le plan A\n");
-    if (!mesure_moyenne(CAL_RPM, &cal_VA[0], &cal_VA[1])) { printf("[CAL] echec\n"); return; }
+    if (!mesure_moyenne(CAL_RPM, &calibration.cal_VA[0], &calibration.cal_VA[1])) { printf("[CAL] echec\n"); return; }
     have_A = true;
-    print_v("V1_A", cal_VA[0]); print_v("V2_A", cal_VA[1]);
-    printf("[CAL] RETIRE la masse A. Pose %.1f g a %.0f deg dans le plan B, puis tape 'b'\n",
+    calibration.calibre = false;
+    print_v("V1_A", calibration.cal_VA[0]); print_v("V2_A", calibration.cal_VA[1]);
+    printf("[CAL] RETIRE la masse A. Pose %.3f g a %.0f deg dans le plan B, puis tape 'b'\n",
            MASSE_ESSAI_B_G, ANGLE_ESSAI_B);
 }
 
@@ -71,62 +158,62 @@ void cal_runB(void)
 {
     if (!have_A) { printf("[CAL] fais d'abord le run A ('a')\n"); return; }
     printf("\n[CAL] Run B : masse d'essai dans le plan B\n");
-    if (!mesure_moyenne(CAL_RPM, &cal_VB[0], &cal_VB[1])) { printf("[CAL] echec\n"); return; }
+    if (!mesure_moyenne(CAL_RPM, &calibration.cal_VB[0], &calibration.cal_VB[1])) { printf("[CAL] echec\n"); return; }
     have_B = true;
-    print_v("V1_B", cal_VB[0]); print_v("V2_B", cal_VB[1]);
-    printf("[CAL] RETIRE la masse B, puis tape 'k' pour calculer les corrections\n");
+    calibration.calibre = false;
+    print_v("V1_B", calibration.cal_VB[0]); print_v("V2_B", calibration.cal_VB[1]);
+    printf("[CAL] RETIRE la masse B, puis tape 'k' pour calibrer\n");
 }
 
-void cal_calcul(void)
+// 'k' : calcule la matrice, puis affiche la correction du rotor mesuré au run 0
+void cal_calcul(const _param_t *param)
 {
     if (!(have_0 && have_A && have_B)) { printf("[CAL] calibration incomplete\n"); return; }
+    if (cal_matrice(param) != 0) return;
 
-    //cplx mA = mass_c(MASSE_ESSAI_A_G, ANGLE_ESSAI_A);
-    //cplx mB = mass_c(MASSE_ESSAI_B_G, ANGLE_ESSAI_B);
-    cplx mA = mass_c(MASSE_ESSAI_A_G * RAYON_A_MM, ANGLE_ESSAI_A);   // g·mm
-    cplx mB = mass_c(MASSE_ESSAI_B_G * RAYON_B_MM, ANGLE_ESSAI_B);   // g·mm
-    cplx a11 = (cal_VA[0] - cal_V0[0]) / mA;
-    cplx a21 = (cal_VA[1] - cal_V0[1]) / mA;
-    cplx a12 = (cal_VB[0] - cal_V0[0]) / mB;
-    cplx a22 = (cal_VB[1] - cal_V0[1]) / mB;
-
-    cplx det = a11 * a22 - a12 * a21;
-    double cond = cabs(det) / (cabs(a11) * cabs(a22) + 1e-12);
-    printf("[CAL] conditionnement |det|/(|a11||a22|) = %.3f %s\n", cond,
-           cond < 0.2 ? "(MAUVAIS : plans mal separes)" : "(ok)");
-    if (cabs(det) < 1e-12) { printf("[CAL] matrice singuliere\n"); return; }
-
-    cal_corrA = -( a22 * cal_V0[0] - a12 * cal_V0[1]) / det;
-    cal_corrB = -(-a21 * cal_V0[0] + a11 * cal_V0[1]) / det;
-    have_corr = true;
-
-    /*double angA = carg(cal_corrA) * 180.0 / M_PI; if (angA < 0) angA += 360.0;
-    double angB = carg(cal_corrB) * 180.0 / M_PI; if (angB < 0) angB += 360.0;
-    printf("\n===== CORRECTION =====\n");
-    printf("Plan A : %.2f g a %.1f deg\n", cabs(cal_corrA), angA);
-    printf("Plan B : %.2f g a %.1f deg\n", cabs(cal_corrB), angB);
-    printf("Pose ces masses, puis tape 'v' pour verifier.\n");*/
-
-    double angA = carg(cal_corrA) * 180.0 / M_PI; if (angA < 0) angA += 360.0;
-    double angB = carg(cal_corrB) * 180.0 / M_PI; if (angB < 0) angB += 360.0;
-    printf("\n===== CORRECTION =====\n");
-    printf("Plan A : %.3f g a %.1f deg (diam %.0f mm)  [%.1f g.mm]\n",cabs(cal_corrA) / RAYON_A_MM, angA, DIAM_A_MM, cabs(cal_corrA));
-    printf("Plan B : %.3f g a %.1f deg (diam %.0f mm)  [%.1f g.mm]\n",cabs(cal_corrB) / RAYON_B_MM, angB, DIAM_B_MM, cabs(cal_corrB));
-    printf("Pose ces masses, puis tape 'v' pour verifier.\n");
+    balourd_t bA, bB;
+    if (cal_calcul_balourd(calibration.cal_V0[0], calibration.cal_V0[1], param, &bA, &bB) != 0) return;
+    printf("\n===== CORRECTION (rotor du run 0) =====\n");
+    afficher_balourd("A", &bA, param->rayon_correction_A_mm);
+    afficher_balourd("B", &bB, param->rayon_correction_B_mm);
+    printf("Pose ces masses, puis lance la mesure du balourd pour verifier.\n");
 }
 
-// masse (g) à poser à un diamètre donné pour un balourd en g.mm
-static double masse_pour_diametre(cplx U, double diam_mm) {
-    return cabs(U) / (diam_mm / 2.0);
+// Recharge une calibration déjà faite (après un redémarrage, par exemple)
+void cal_charger(const double ref[6][2], const _param_t *param)
+{
+    calibration.cal_V0[0] = polaire(ref[0][0], ref[0][1]);
+    calibration.cal_V0[1] = polaire(ref[1][0], ref[1][1]);
+    calibration.cal_VA[0] = polaire(ref[2][0], ref[2][1]);
+    calibration.cal_VA[1] = polaire(ref[3][0], ref[3][1]);
+    calibration.cal_VB[0] = polaire(ref[4][0], ref[4][1]);
+    calibration.cal_VB[1] = polaire(ref[5][0], ref[5][1]);
+    have_0 = have_A = have_B = true;
+    cal_matrice(param);
+}
+
+void init_calibration(const _param_t *param)
+{
+    // Amplitude et phase (deg) lues dans les logs "V1_0 : amp=... phase=..." de chaque run.
+    // Les phases à NAN sont à REMPLACER : tant qu'elles le sont, la calibration est refusée.
+    static const double ref[6][2] = {
+        {0.0932, 68.9},   // V1_0
+        {0.0179, 301.5},   // V2_0
+        {0.2174, 47.7},   // V1_A
+        {0.0232, 301.9},   // V2_A
+        {0.0980, 79.0},   // V1_B
+        {0.1065, 32.0},   // V2_B
+    };
+    cal_charger(ref, param);
 }
 
 void cal_verif(void)
 {
-    if (!have_0) { printf("[CAL] pas de reference (run 0)\n"); return; }
+    if (!calibration.calibre) { printf("[CAL] pas de reference\n"); return; }
     cplx V1, V2;
     printf("\n[CAL] Verification apres correction\n");
     if (!mesure_moyenne(CAL_RPM, &V1, &V2)) { printf("[CAL] echec\n"); return; }
     print_v("V1", V1); print_v("V2", V2);
     printf("Residu : capteur1 = %.0f %%, capteur2 = %.0f %% de l'initial\n",
-           100.0 * cabs(V1) / cabs(cal_V0[0]), 100.0 * cabs(V2) / cabs(cal_V0[1]));
+           100.0 * cabs(V1) / cabs(calibration.cal_V0[0]), 100.0 * cabs(V2) / cabs(calibration.cal_V0[1]));
 }

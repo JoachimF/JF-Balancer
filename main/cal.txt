@@ -1,0 +1,256 @@
+V1_0 : amp=0.0932 phase=68.9 deg
+V2_0 : amp=0.0179 phase=301.5 deg
+[CAL] Pose 0.05 g a 0 deg dans le plan A, puis tape 'a'
+
+V1_A : amp=0.2174 phase=47.7 deg
+V2_A : amp=0.0232 phase=301.9 deg
+[CAL] RETIRE la masse A. Pose 0.1 g a 0 deg dans le plan B, puis tape 'b'
+
+V1_B : amp=0.0980 phase=79.0 deg
+V2_B : amp=0.1065 phase=32.0 deg
+[CAL] RETIRE la masse B, puis tape 'k' pour calculer les corrections
+
+V1 : amp=0.0654 phase=266.6 deg
+V2 : amp=0.0135 phase=193.9 deg
+Residu : capteur1 = 70 %, capteur2 = 73 % de l'initial
+
+V1_0 : amp=0.0344 phase=268.2 deg
+V2_0 : amp=0.0083 phase=218.3 deg
+[CAL] Pose 0.05 g a 0 deg dans le plan A, puis tape 'a'
+
+V1_A : amp=0.0702 phase=7.6 deg
+V2_A : amp=0.0082 phase=204.2 deg
+[CAL] RETIRE la masse A. Pose 0.05 g a 0 deg dans le plan B, puis tape 'b'
+
+V1_B : amp=0.0370 phase=273.5 deg
+V2_B : amp=0.0625 phase=24.5 deg
+[CAL] RETIRE la masse B, puis tape 'k' pour calculer les corrections
+
+[CAL] conditionnement |det|/(|a11||a22|) = 0.999 (ok)
+
+===== CORRECTION =====
+Plan A : 0.021 g a 57.3 deg (diam 66 mm)  [0.7 g.mm]
+Plan B : 0.006 g a 8.4 deg (diam 40 mm)  [0.1 g.mm]
+Pose ces masses, puis tape 'v' pour verifier.
+
+V1 : amp=0.0045 phase=257.5 deg
+V2 : amp=0.0036 phase=214.1 deg
+Residu : capteur1 = 13 %, capteur2 = 44 % de l'initial
+
+V1 : amp=0.0095 phase=214.8 deg
+V2 : amp=0.0052 phase=145.1 deg
+
+===== BALOURD =====
+Plan A : balourd 0.12 g.mm a 178.4 deg
+          -> AJOUTER 0.003 g a 358.4 deg (rayon 35 mm)
+          ou RETIRER 0.003 g a 178.4 deg
+Plan B : balourd 0.05 g.mm a 105.2 deg
+          -> AJOUTER 0.002 g a 285.2 deg (rayon 20 mm)
+          ou RETIRER 0.002 g a 105.2 deg
+
+Plan A : balourd 0.05 g.mm a 174.3 deg
+          -> AJOUTER 0.001 g a 354.3 deg (rayon 35 mm)
+          ou RETIRER 0.001 g a 174.3 deg
+Plan B : balourd 0.03 g.mm a 148.8 deg
+          -> AJOUTER 0.001 g a 328.8 deg (rayon 20 mm)
+          ou RETIRER 0.001 g a 148.8 deg
+
+===== BALOURD =====
+Plan A : balourd 0.04 g.mm a 166.6 deg
+          -> AJOUTER 0.001 g a 346.6 deg (rayon 35 mm)
+          ou RETIRER 0.001 g a 166.6 deg
+Plan B : balourd 0.03 g.mm a 146.1 deg
+          -> AJOUTER 0.001 g a 326.1 deg (rayon 20 mm)
+          ou RETIRER 0.001 g a 146.1 deg
+
+01/11/2026 14:57
+===== BALOURD =====
+Plan A : balourd 0.02 g.mm a 108.6 deg
+          -> AJOUTER 0.000 g a 288.6 deg (rayon 35 mm)
+          ou RETIRER 0.000 g a 108.6 deg
+Plan B : balourd 0.02 g.mm a 173.9 deg
+          -> AJOUTER 0.001 g a 353.9 deg (rayon 20 mm)
+          ou RETIRER 0.001 g a 173.9 deg
+===== BALOURD =====
+Plan A : balourd 0.02 g.mm a 112.3 deg
+          -> AJOUTER 0.001 g a 292.3 deg (rayon 35 mm)
+          ou RETIRER 0.001 g a 112.3 deg
+Plan B : balourd 0.02 g.mm a 170.3 deg
+          -> AJOUTER 0.001 g a 350.3 deg (rayon 20 mm)
+          ou RETIRER 0.001 g a 170.3 deg
+===== BALOURD =====
+Plan A : balourd 0.02 g.mm a 150.4 deg
+          -> AJOUTER 0.000 g a 330.4 deg (rayon 35 mm)
+          ou RETIRER 0.000 g a 150.4 deg
+Plan B : balourd 0.02 g.mm a 164.7 deg
+          -> AJOUTER 0.001 g a 344.7 deg (rayon 20 mm)
+          ou RETIRER 0.001 g a 164.7 deg
+
+01/11/2026 17:16 4000rpm
+===== BALOURD =====
+Plan A : balourd 0.0674 g.mm a 313.2 deg
+          -> AJOUTER 0.0019 g a 133.2 deg (rayon 35 mm)
+          ou RETIRER 0.0019 g a 313.2 deg
+Plan B : balourd 0.0246 g.mm a 217.7 deg
+          -> AJOUTER 0.0012 g a 37.7 deg (rayon 20 mm)
+          ou RETIRER 0.0012 g a 217.7 deg
+===== BALOURD =====
+Plan A : balourd 0.0852 g.mm a 290.2 deg
+          -> AJOUTER 0.0024 g a 110.2 deg (rayon 35 mm)
+          ou RETIRER 0.0024 g a 290.2 deg
+Plan B : balourd 0.0241 g.mm a 221.4 deg
+          -> AJOUTER 0.0012 g a 41.4 deg (rayon 20 mm)
+          ou RETIRER 0.0012 g a 221.4 deg
+===== BALOURD =====
+Plan A : balourd 0.0798 g.mm a 294.0 deg
+          -> AJOUTER 0.0023 g a 114.0 deg (rayon 35 mm)
+          ou RETIRER 0.0023 g a 294.0 deg
+Plan B : balourd 0.0150 g.mm a 212.8 deg
+          -> AJOUTER 0.0007 g a 32.8 deg (rayon 20 mm)
+          ou RETIRER 0.0007 g a 212.8 deg
+5000rpm
+===== BALOURD =====
+Plan A : balourd 0.5638 g.mm a 202.8 deg
+          -> AJOUTER 0.0161 g a 22.8 deg (rayon 35 mm)
+          ou RETIRER 0.0161 g a 202.8 deg
+Plan B : balourd 0.1575 g.mm a 9.6 deg
+          -> AJOUTER 0.0079 g a 189.6 deg (rayon 20 mm)
+          ou RETIRER 0.0079 g a 9.6 deg
+===== BALOURD =====
+Plan A : balourd 0.3505 g.mm a 203.5 deg
+          -> AJOUTER 0.0100 g a 23.5 deg (rayon 35 mm)
+          ou RETIRER 0.0100 g a 203.5 deg
+Plan B : balourd 0.1637 g.mm a 16.4 deg
+          -> AJOUTER 0.0082 g a 196.4 deg (rayon 20 mm)
+          ou RETIRER 0.0082 g a 16.4 deg
+===== BALOURD =====
+Plan A : balourd 0.4849 g.mm a 195.7 deg
+          -> AJOUTER 0.0139 g a 15.7 deg (rayon 35 mm)
+          ou RETIRER 0.0139 g a 195.7 deg
+Plan B : balourd 0.1728 g.mm a 11.1 deg
+          -> AJOUTER 0.0086 g a 191.1 deg (rayon 20 mm)
+          ou RETIRER 0.0086 g a 11.1 deg
+
+6000rpm - 150 tours de mesures
+===== BALOURD =====
+Plan A : balourd 0.4351 g.mm a 267.6 deg
+          -> AJOUTER 0.0124 g a 87.6 deg (rayon 35 mm)
+          ou RETIRER 0.0124 g a 267.6 deg
+Plan B : balourd 0.2973 g.mm a 349.1 deg
+          -> AJOUTER 0.0149 g a 169.1 deg (rayon 20 mm)
+          ou RETIRER 0.0149 g a 349.1 deg
+===== BALOURD =====
+Plan A : balourd 0.3495 g.mm a 203.1 deg
+          -> AJOUTER 0.0100 g a 23.1 deg (rayon 35 mm)
+          ou RETIRER 0.0100 g a 203.1 deg
+Plan B : balourd 0.2878 g.mm a 348.3 deg
+          -> AJOUTER 0.0144 g a 168.3 deg (rayon 20 mm)
+          ou RETIRER 0.0144 g a 348.3 deg
+===== BALOURD =====
+Plan A : balourd 0.5631 g.mm a 195.7 deg
+          -> AJOUTER 0.0161 g a 15.7 deg (rayon 35 mm)
+          ou RETIRER 0.0161 g a 195.7 deg
+Plan B : balourd 0.2864 g.mm a 348.6 deg
+          -> AJOUTER 0.0143 g a 168.6 deg (rayon 20 mm)
+          ou RETIRER 0.0143 g a 348.6 deg
+===== BALOURD =====
+Plan A : balourd 0.4469 g.mm a 273.5 deg
+          -> AJOUTER 0.0128 g a 93.5 deg (rayon 35 mm)
+          ou RETIRER 0.0128 g a 273.5 deg
+Plan B : balourd 0.3033 g.mm a 350.6 deg
+          -> AJOUTER 0.0152 g a 170.6 deg (rayon 20 mm)
+          ou RETIRER 0.0152 g a 350.6 deg
+
+Rigidification du bati
+===== BALOURD =====
+Plan A : balourd 0.1023 g.mm a 52.3 deg
+          -> AJOUTER 0.0029 g a 232.3 deg (rayon 35 mm)
+          ou RETIRER 0.0029 g a 52.3 deg
+Plan B : balourd 0.0275 g.mm a 289.8 deg
+          -> AJOUTER 0.0014 g a 109.8 deg (rayon 20 mm)
+          ou RETIRER 0.0014 g a 289.8 deg
+===== BALOURD =====
+Plan A : balourd 0.1158 g.mm a 69.3 deg
+          -> AJOUTER 0.0033 g a 249.3 deg (rayon 35 mm)
+          ou RETIRER 0.0033 g a 69.3 deg
+Plan B : balourd 0.0259 g.mm a 294.6 deg
+          -> AJOUTER 0.0013 g a 114.6 deg (rayon 20 mm)
+          ou RETIRER 0.0013 g a 294.6 deg
+
+clamp arrière seulement
+===== BALOURD =====
+Plan A : balourd 0.0709 g.mm a 121.3 deg
+          -> AJOUTER 0.0020 g a 301.3 deg (rayon 35 mm)
+          ou RETIRER 0.0020 g a 121.3 deg
+Plan B : balourd 0.1279 g.mm a 340.2 deg
+          -> AJOUTER 0.0064 g a 160.2 deg (rayon 20 mm)
+          ou RETIRER 0.0064 g a 340.2 deg
+===== BALOURD =====
+Plan A : balourd 0.0779 g.mm a 104.6 deg
+          -> AJOUTER 0.0022 g a 284.6 deg (rayon 35 mm)
+          ou RETIRER 0.0022 g a 104.6 deg
+Plan B : balourd 0.1330 g.mm a 341.7 deg
+          -> AJOUTER 0.0066 g a 161.7 deg (rayon 20 mm)
+          ou RETIRER 0.0066 g a 341.7 deg
+
+avec silentbloc en haut du roulement
+===== BALOURD =====
+Plan A : balourd 0.3618 g.mm a 115.6 deg
+          -> AJOUTER 0.0103 g a 295.6 deg (rayon 35 mm)
+          ou RETIRER 0.0103 g a 115.6 deg
+Plan B : balourd 0.1572 g.mm a 339.9 deg
+          -> AJOUTER 0.0079 g a 159.9 deg (rayon 20 mm)
+          ou RETIRER 0.0079 g a 339.9 deg
+===== BALOURD =====
+Plan A : balourd 0.3586 g.mm a 114.1 deg
+          -> AJOUTER 0.0102 g a 294.1 deg (rayon 35 mm)
+          ou RETIRER 0.0102 g a 114.1 deg
+Plan B : balourd 0.1581 g.mm a 337.1 deg
+          -> AJOUTER 0.0079 g a 157.1 deg (rayon 20 mm)
+          ou RETIRER 0.0079 g a 337.1 deg
+===== BALOURD =====
+Plan A : balourd 0.3738 g.mm a 115.0 deg
+          -> AJOUTER 0.0107 g a 295.0 deg (rayon 35 mm)
+          ou RETIRER 0.0107 g a 115.0 deg
+Plan B : balourd 0.1583 g.mm a 336.4 deg
+          -> AJOUTER 0.0079 g a 156.4 deg (rayon 20 mm)
+          ou RETIRER 0.0079 g a 336.4 deg
+
+6000rpm
+===== BALOURD =====
+Plan A : balourd 0.9144 g.mm a 124.8 deg
+          -> AJOUTER 0.0261 g a 304.8 deg (rayon 35 mm)
+          ou RETIRER 0.0261 g a 124.8 deg
+Plan B : balourd 0.4060 g.mm a 357.4 deg
+          -> AJOUTER 0.0203 g a 177.4 deg (rayon 20 mm)
+          ou RETIRER 0.0203 g a 357.4 deg
+===== BALOURD =====
+Plan A : balourd 0.9087 g.mm a 124.6 deg
+          -> AJOUTER 0.0260 g a 304.6 deg (rayon 35 mm)
+          ou RETIRER 0.0260 g a 124.6 deg
+Plan B : balourd 0.4061 g.mm a 358.4 deg
+          -> AJOUTER 0.0203 g a 178.4 deg (rayon 20 mm)
+          ou RETIRER 0.0203 g a 358.4 deg
+===== BALOURD =====
+Plan A : balourd 0.9007 g.mm a 123.9 deg
+          -> AJOUTER 0.0257 g a 303.9 deg (rayon 35 mm)
+          ou RETIRER 0.0257 g a 123.9 deg
+Plan B : balourd 0.4006 g.mm a 357.5 deg
+          -> AJOUTER 0.0200 g a 177.5 deg (rayon 20 mm)
+          ou RETIRER 0.0200 g a 357.5 deg
+===== BALOURD =====
+Plan A : balourd 0.8731 g.mm a 125.6 deg
+          -> AJOUTER 0.0249 g a 305.6 deg (rayon 35 mm)
+          ou RETIRER 0.0249 g a 125.6 deg
+Plan B : balourd 0.4312 g.mm a 0.9 deg
+          -> AJOUTER 0.0216 g a 180.9 deg (rayon 20 mm)
+          ou RETIRER 0.0216 g a 0.9 deg
+
+7600rpm
+===== BALOURD =====
+Plan A : balourd 2.2113 g.mm a 168.7 deg
+          -> AJOUTER 0.0632 g a 348.7 deg (rayon 35 mm)
+          ou RETIRER 0.0632 g a 168.7 deg
+Plan B : balourd 0.8123 g.mm a 323.2 deg
+          -> AJOUTER 0.0406 g a 143.2 deg (rayon 20 mm)
+          ou RETIRER 0.0406 g a 323.2 deg

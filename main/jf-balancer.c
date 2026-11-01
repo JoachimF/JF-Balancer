@@ -44,14 +44,14 @@ servo_t esc ;
 uint32_t RPM ;
 uint32_t ppm ;
 _param_t param = {
-    .nb_tour_mesure = 40,
+    .nb_tour_mesure = 150,
     .distance_plan_mm = 100,
-    .diametre_A_mm = 70,
-    .diametre_B_mm = 70,
+    .rayon_test_A_mm = 35,
+    .rayon_test_B_mm = 20,
     .nb_echantillons = 1024,
     .rpm_mesure = 2500,
-    .rayon_masse_test_A_mm = 35,
-    .rayon_masse_test_B_mm = 35
+    .rayon_correction_A_mm = 35,
+    .rayon_correction_B_mm = 20
 };
 
 bool rpm_rdy ;
@@ -60,13 +60,16 @@ bool START_MESURE =false ;
 bool stabilisation_en_cours = false ;
 uint16_t mesure ;
 
-float data_x1[2*SAMPLES] ;
-float data_y1[2*SAMPLES] ;
-float data_x2[2*SAMPLES] ;
-float data_y2[2*SAMPLES] ;
+//float data_x1[2*SAMPLES] ;
+//float data_y1[2*SAMPLES] ;
+//float data_x2[2*SAMPLES] ;
+//float data_y2[2*SAMPLES] ;
 
-data_mpu_t raw_data1[SAMPLES] ;
-data_mpu_t raw_data2[SAMPLES] ;
+//data_mpu_t raw_data1[SAMPLES] ;
+//data_mpu_t raw_data2[SAMPLES] ;
+
+data_mpu_t *raw_data1  = NULL ;
+data_mpu_t *raw_data2  = NULL ;
 
 data_output_t data_output[5] ;
 
@@ -75,6 +78,9 @@ TaskHandle_t read_accel2 ;
 TaskHandle_t regul_rpm ;
 
 extern cplx last_V1, last_V2;
+extern uint16_t rayon_correction_A ;
+extern uint16_t rayon_correction_B ;
+extern calibration_data_t calibration;
 
 static EventGroupHandle_t acq_evt;
 
@@ -104,6 +110,8 @@ uint64_t laser_isr_last ;
 
 static volatile uint64_t laser_first = 0, laser_last = 0 ;
 static volatile int32_t laser_count = 10 ;
+
+balourd_t balourd_A,balourd_B ;
 
 static void IRAM_ATTR mpu6050_isr(void* arg)
 {
@@ -183,7 +191,7 @@ void mesure_a_vide(void)
     {
         if(nb_sample >= SAMPLES) mesure_encours = false ;
         if(nb_sample2 >= SAMPLES) mesure_encours2 = false ;
-        printf(".") ;
+        //printf(".") ;
         vTaskDelay(pdMS_TO_TICKS(10)) ; 
     }
     
@@ -243,7 +251,8 @@ void envoyer_donnees_mesure(void) {
     printf("t;Y\n") ;
     for(int j=0;j<nb_sample;j++)
     {
-        printf("%lld;%f;%f\n",raw_data1[j].time,raw_data1[j].gyroy,raw_data1[j].angle*180/M_PI) ;
+        //printf("%lld;%f;%f\n",raw_data1[j].time,raw_data1[j].gyroy,raw_data1[j].angle*180/M_PI) ;
+        printf("%lld;%f\n",raw_data1[j].time,raw_data1[j].gyroy) ;
     }
     printf("###\n") ;
     printf("%ld mesures\n",nb_sample) ;
@@ -252,7 +261,8 @@ void envoyer_donnees_mesure(void) {
     printf("t;Y\n") ;
     for(int j=0;j<nb_sample2;j++)
     {
-        printf("%lld;%f;%f\n",raw_data2[j].time,raw_data2[j].gyroy,raw_data2[j].angle*180/M_PI) ;
+        //printf("%lld;%f;%f\n",raw_data2[j].time,raw_data2[j].gyroy,raw_data2[j].angle*180/M_PI) ;
+        printf("%lld;%f\n",raw_data2[j].time,raw_data2[j].gyroy) ;
     }
     printf("###\n") ;
     printf("%ld mesures\n",nb_sample2) ;
@@ -395,72 +405,72 @@ void calcul_des_angles(data_mpu_t *data,uint16_t nb_mesure)
     }
 }
 
+void preparation_fft(void)
+{
+    //Préparation des tableau pour la FFT
+    /*printf("Préparation de la FFT 1\n") ;
+    for(int i=0;i<nb_sample;i++)
+    {
+        data_x1[i*2]     = raw_data1[i].time ;
+        data_y1[i*2]     = raw_data1[i].time ;
+        //data_x1[1+2*i]   = raw_data1[i].gyrox ;
+        data_y1[1+2*i]   = raw_data1[i].gyroy ;
+    }
+    //Préparation des tableau pour la FFT
+    printf("Préparation de la FFT 2\n") ;
+    for(int i=0;i<nb_sample2;i++)
+    {
+        data_x2[i*2]     = raw_data2[i].time ;
+        data_y2[i*2]     = raw_data2[i].time ;
+        //data_x2[1+2*i]   = raw_data2[i].gyrox ;
+        data_y2[1+2*i]   = raw_data2[i].gyroy ;
+    }
+    //printf("t;X;Y;t\n") ;
+    //for(int j=0;j<SAMPLES*2;j+=2)
+    //{
+        //printf("%.0f;%f;%f\n",data_x[j],data_x[j+1],data_y[j+1]) ;
+        //printf("%.0f;%f\n",data_x[j],data_y[j+1]) ;
+    //}*/
+    compute_fft(raw_data1, SAMPLES);
+    compute_fft(raw_data2, SAMPLES);
+}
+
 void calcul_des_resultats(void)
 {
-        //while(nb_sample2 < SAMPLES) vTaskDelay(80 / portTICK_PERIOD_MS); // Attente de la fin des mesure du MPU2
-        //envoyer_donnees_mesure() ;
         double f_ref = 0 ;
-        double t_laser0 = 0 ;
-        static float sig[SAMPLES] ;
-        static uint32_t tus[SAMPLES] ;
+        //double t_laser0 = 0 ;
+        //static float sig[SAMPLES] ;
+        //static uint32_t tus[SAMPLES] ;
         float angle_corrige, amp_corrigee ;
-
-        //Préparation des tableau pour la FFT
-        /*printf("Préparation de la FFT 1\n") ;
-        for(int i=0;i<nb_sample;i++)
-        {
-            data_x1[i*2]     = raw_data1[i].time ;
-            data_y1[i*2]     = raw_data1[i].time ;
-            data_x1[1+2*i]   = raw_data1[i].gyrox ;
-            data_y1[1+2*i]   = raw_data1[i].gyroy ;
-        }
-        //Préparation des tableau pour la FFT
-        printf("Préparation de la FFT 2\n") ;
-        for(int i=0;i<nb_sample2;i++)
-        {
-            data_x2[i*2]     = raw_data2[i].time ;
-            data_y2[i*2]     = raw_data2[i].time ;
-            data_x2[1+2*i]   = raw_data2[i].gyrox ;
-            data_y2[1+2*i]   = raw_data2[i].gyroy ;
-        }*/
-        //printf("t;X;Y;t\n") ;
-        //for(int j=0;j<SAMPLES*2;j+=2)
-        //{
-            //printf("%.0f;%f;%f\n",data_x[j],data_x[j+1],data_y[j+1]) ;
-            //printf("%.0f;%f\n",data_x[j],data_y[j+1]) ;
-        //}
+        
         float dtmax = 0;
+        float dtmax2 = 0;
+
         for (int i = 1; i < nb_sample; i++) {
             float d = fabsf(raw_data1[i].time - raw_data1[i-1].time - 1000.0f);
             if (d > dtmax) dtmax = d;
         }
         printf("plan A : ecart max a 1 ms = %.0f us\n", dtmax);
 
-        float dtmax2 = 0;
         for (int i = 1; i < nb_sample2; i++) {
             float d = fabsf(raw_data2[i].time - raw_data2[i-1].time - 1000.0f);
             if (d > dtmax2) dtmax2 = d;
         }
         printf("plan B : ecart max a 1 ms = %.0f us\n", dtmax2);
-#define FFT 1
-#ifdef FFT    
-        //compute_fft(raw_data1, SAMPLES);
-        //compute_fft(raw_data2, SAMPLES);
-#endif
         
         /*********Lockin MPU 1 *********************/
-        for (int i = 0; i < nb_sample; i++) {
+        /*for (int i = 0; i < nb_sample; i++) {
             tus[i] = raw_data1[i].time;
             sig[i] = raw_data1[i].gyroy;      // ou gyrox, etc.
-        }
+        }*/
         
         printf("laser count = %ld\n",laser_count) ;
         f_ref = (laser_count - 1) * 1e6 / (double)(laser_last - laser_first);
-        t_laser0 = ((double)((int64_t)laser_first - (int64_t)laser_first)) * 1e-6; // en s, base de temps des échantillons
+        //t_laser0 = ((double)((int64_t)laser_first - (int64_t)laser_first)) * 1e-6; // en s, base de temps des échantillons
 
         lockin_result_t r = lockin_angle(raw_data1,nb_sample) ;
         //lockin_result_t r = lockin(tus, sig, nb_sample, f_ref, t_laser0); 
-        angle_corrige = obtenir_angle_corrige1(r.phase_deg,f_ref) ;
+        angle_corrige = r.phase_deg ; //obtenir_angle_corrige1(r.phase_deg,f_ref) ;
         amp_corrigee = r.amp ; //obtenir_amplitude_corrige1(r.amp,f_ref) ;
 
         // après le lockin MPU1
@@ -472,41 +482,31 @@ void calcul_des_resultats(void)
         data_output[mesure].phase = r.phase_deg ;
         data_output[mesure].deg = r.n_used ; 
         data_output[mesure].angle = angle_corrige ;*/
-        
-
         //printf("Laser count : %ld | f_ref = %.2f Hz | amplitude = %.4f | phase = %.1f deg (n=%d) | angle : %.1f\n",laser_count,f_ref, r.amp, r.phase_deg, r.n_used,angle_corrige);
         
         printf("###LOCKIN1-%d\n",mesure+1) ;
         printf("%f;%f;%f;%f;%d;%f\n",f_ref,r.amp,amp_corrigee,r.phase_deg,r.n_used,angle_corrige) ;
         printf("###\n") ;
-
          /*********Lockin MPU 2 *********************/
-        for (int i = 0; i < nb_sample2; i++) {
+        /*for (int i = 0; i < nb_sample2; i++) {
             tus[i] = raw_data2[i].time;
             sig[i] = raw_data2[i].gyroy;      // ou gyrox, etc.
-        }
+        }*/
 
         printf("laser count = %ld\n",laser_count) ;
         f_ref = (laser_count - 1) * 1e6 / (double)(laser_last - laser_first);
-        t_laser0 = ((double)((int64_t)laser_first - (int64_t)laser_first)) * 1e-6; // en s, base de temps des échantillons    
+        //t_laser0 = ((double)((int64_t)laser_first - (int64_t)laser_first)) * 1e-6; // en s, base de temps des échantillons    
         r = lockin_angle(raw_data2,nb_sample) ;
         //r = lockin(tus, sig, nb_sample2, f_ref, t_laser0); 
-        angle_corrige = obtenir_angle_corrige2(r.phase_deg,f_ref) ;
+        angle_corrige = r.phase_deg ; //obtenir_angle_corrige2(r.phase_deg,f_ref) ;
         amp_corrigee = r.amp ; //obtenir_amplitude_corrige2(r.amp,f_ref) ;
 
         last_V2 = r.X + I * r.Y;
 
-        /*data_output[mesure].f_ref = f_ref ;
-        data_output[mesure].amplitude = amp_corrigee ; //r.amp ;
-        data_output[mesure].phase = r.phase_deg ;
-        data_output[mesure].deg = r.n_used ; 
-        data_output[mesure].angle = angle_corrige ;*/
-
-        //printf("Laser count : %ld | f_ref = %.2f Hz | amplitude = %.4f | phase = %.1f deg (n=%d) | angle : %.1f\n",laser_count,f_ref, r.amp, r.phase_deg, r.n_used,angle_corrige);
-        
         printf("###LOCKIN2-%d\n",mesure+1) ;
         printf("%f;%f;%f;%f;%d;%f\n",f_ref,r.amp,amp_corrigee,r.phase_deg,r.n_used,angle_corrige) ;
         printf("###\n") ;
+
         /******* Fin de l'envoi des données *******/
         mesure++;
 }
@@ -515,6 +515,7 @@ void task_regul_rpm()
 {
     ppm = 1000 ;
     uint16_t rpm_ok = 0 ;
+    bool start_ppm = true ;
     
     ESP_ERROR_CHECK(servo_set_pulse_us(&esc,ppm)) ;
     while(1)
@@ -522,12 +523,24 @@ void task_regul_rpm()
         rpm_rdy = false ;
         if(RPM > 500)
         {
+            if(start_ppm)
+            {
+                start_ppm = false ;
+                ESP_ERROR_CHECK(servo_set_pulse_us(&esc,1000)) ;
+                vTaskDelay(2000 / portTICK_PERIOD_MS); 
+            }
             if(laser_rpm < (RPM - RPM_ERROR) || laser_rpm > (RPM + RPM_ERROR))
             {
                 if(laser_rpm < RPM)
-                    ppm++ ;
+                {
+                    if(ppm < SERVO_MAX_US)
+                        ppm += 1 ;
+                }
                 else
-                    ppm--;
+                {
+                    //if(ppm > SERVO_MIN_US)
+                        ppm -= 1 ;
+                }
                 ESP_ERROR_CHECK(servo_set_pulse_us(&esc,ppm)) ;
                 if(rpm_ok > 0)
                     rpm_ok-- ;
@@ -539,6 +552,7 @@ void task_regul_rpm()
         }else{
             ppm = 1000 ;
             rpm_ok = 0 ;
+            bool start = true ;
             ESP_ERROR_CHECK(servo_set_pulse_us(&esc,0)) ;
             //vTaskDelay(50 / portTICK_PERIOD_MS); 
         }
@@ -546,7 +560,7 @@ void task_regul_rpm()
             rpm_rdy = true ;
         else
             rpm_rdy = false ;
-        vTaskDelay(50 / portTICK_PERIOD_MS); 
+        vTaskDelay(60 / portTICK_PERIOD_MS); 
     }
     if((esp_timer_get_time() - laser_last) > 10000000)
         laser_rpm = 0 ;
@@ -591,7 +605,11 @@ void task(void *ignore)
 
 void app_main(void)
 {
-    
+    //data_mpu_t raw_data1[SAMPLES] ;
+    //data_mpu_t raw_data2[SAMPLES] ;
+
+    raw_data1 = (data_mpu_t*) malloc(4096 * sizeof(data_mpu_t));
+    raw_data2 = (data_mpu_t*) malloc(4096 * sizeof(data_mpu_t));
     mesure_encours = false ; 
     mesure_encours2 = false ; 
     START_MESURE = false ;
@@ -641,10 +659,10 @@ void app_main(void)
     ESP_LOGI(TAG, "Config handler laser") ;
     ESP_ERROR_CHECK(gpio_isr_handler_add(LASER_INT_PIN, laser_isr, (void*) LASER_INT_PIN)) ;
     ESP_ERROR_CHECK(gpio_intr_enable(LASER_INT_PIN)) ;
-    
+
     vTaskDelay(500 / portTICK_PERIOD_MS); 
     xTaskCreate(uart_console_task, "uart_console_task", 4096, NULL, 5, NULL);
-
+    init_calibration(&param);
     while (1) {
         if(stabilisation_en_cours)
             printf("Consigne RPM : %ld - Laser RPM : %ld - PPM : %ld\n",RPM,laser_rpm,ppm) ;

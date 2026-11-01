@@ -137,6 +137,7 @@ float obtenir_angle_corrige2(float angle_brut_deg, float f_ref)
     return angle_corrige;
 }
 
+/*
 static float fft_buf[2 * SAMPLES];   // [re, im, re, im, ...]
 static float window[SAMPLES];
 
@@ -156,9 +157,9 @@ void compute_fft(const data_mpu_t *raw, int n)
     //printf("mean : %f\n",mean) ;
     // Fenêtre de Hann, réduit les fuites spectrales
     dsps_wind_hann_f32(window, n);
-    /*for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         printf("%f\n",window[i]) ;
-    }    */
+    }    
 
     for (int i = 0; i < n; i++) {
         fft_buf[2 * i]     = (raw[i].gyroy - mean) * window[i];  // partie réelle
@@ -180,4 +181,4 @@ void compute_fft(const data_mpu_t *raw, int n)
         if (mag > max_mag) { max_mag = mag; max_k = k; }
     }
     printf("fs = %.1f Hz, pic à %.2f Hz\n", fs, max_k * fs / n);
-}
+}*/
